@@ -1,0 +1,43 @@
+{
+  "persona": "fan",
+  "header": {
+    "name": "Sijoy Almeida",
+    "tagline": "Musician · Creator · The Vasaikar Who Went Viral",
+    "avatar_emoji": "🎵",
+    "location": "Boston, MA · Originally from Vasai, Maharashtra",
+    "links": {
+      "youtube": "https://www.youtube.com/@JoShoMusic2000",
+      "spotify": "https://open.spotify.com/artist/0AUR670cmRZFZBikvylsKy",
+      "instagram": "https://www.instagram.com/sijoy_almeida/",
+      "apple_music": "https://music.apple.com/in/artist/sijoy-almeida/1658307370",
+      "jiosaavn": "https://www.jiosaavn.com/artist/sijoy-almeida-songs/KjWKiicBRsg_"
+    }
+  },
+  "story": {
+    "headline": "From an empty church in Vasai to 25 million views.",
+    "paragraphs": [
+      "I taught myself piano, harmonica, guitar, and vocals in an empty church. No lessons. No academy. Just hours of practice and a hacked power supply I soldered myself at age 12 because I couldn't afford batteries.",
+      "In 2020, I joined a band as a singer — not a pianist. \"Vasaikar Masala\" crossed 25 million views and became a cultural moment for the Konkani community. When the band split, I started my own channel and never looked back.",
+      "I produce, sing, and engineer everything myself. Music and technology aren't different worlds — they're both about building systems that work beautifully."
+    ]
+  },
+  "milestones": [
+    {"metric": "76.9K", "label": "YouTube Subscribers", "live": true},
+    {"metric": "25M+", "label": "Total Views", "live": true},
+    {"metric": "147K+", "label": "Monthly Spotify Listeners"},
+    {"metric": "42K+", "label": "Instagram Reels Created by Fans"},
+    {"metric": "3.5M+", "label": "Streams — Vasaikar Masala"},
+    {"metric": "4", "label": "Albums Released"}
+  ],
+  "discography": [
+    {"title": "Vasaikar Masala", "year": 2021, "streams": "3.5M+", "note": "The one that started it all"},
+    {"title": "Vasaikar Valentine's Mashup", "year": 2022, "streams": "342K+", "note": "6-song Konkani mashup"},
+    {"title": "Vasaikar Valentine's Mashup 2", "year": 2023, "streams": "151K+", "note": "The sequel fans asked for"},
+    {"title": "O Jenny Arey Johny", "year": 2022, "streams": "43K+", "note": "Original single"}
+  ],
+  "creative_stack": ["Cubase (DAW)", "DSP / Audio Engineering", "CD Baby Distribution", "YouTube Studio", "Spotify for Artists", "MIDI Protocol", "Vocal Production"],
+  "origin": {
+    "title": "JoSho = John + Shobha",
+    "text": "Named after my parents. Everything I build — music or technology — is built on the foundation they gave me."
+  }
+}

@@ -12,340 +12,555 @@
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
 :root{
 --bg:#07070D;--bg2:#0F0F1A;--bg3:#161625;
---accent:#818CF8;--cyan:#22D3EE;--green:#34D399;--red:#EF4444;
+--accent:#818CF8;--cyan:#22D3EE;--green:#34D399;--amber:#F59E0B;--red:#EF4444;
 --text:#E2E8F0;--text2:#94A3B8;--text3:#475569;--white:#fff;
 --font-d:'Space Grotesk',sans-serif;--font-b:'Inter',sans-serif;--font-m:'JetBrains Mono',monospace;
 }
 html{background:var(--bg);color:var(--text);font-family:var(--font-b)}
-body{background:var(--bg);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:2rem}
+body{background:var(--bg);min-height:100vh;padding:0}
 ::selection{background:var(--accent);color:var(--bg)}
+a{color:var(--accent);text-decoration:none}
+a:hover{color:var(--white)}
 
-.container{max-width:600px;width:100%;text-align:center}
+/* ═══ SHARED ═══ */
+.page{max-width:800px;margin:0 auto;padding:3rem 2rem 4rem;opacity:0;animation:fadeIn .6s .1s forwards}
+@keyframes fadeIn{to{opacity:1}}
+.loading-screen{display:flex;align-items:center;justify-content:center;min-height:100vh;flex-direction:column;gap:1rem}
+.loading-screen .spinner{width:32px;height:32px;border:3px solid var(--bg3);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-screen p{font:.8rem var(--font-m);color:var(--text3)}
 
-/* Gate */
-.gate{animation:fadeIn .6s ease}
-.gate-icon{font-size:3rem;margin-bottom:1.5rem;opacity:.6}
+/* ═══ DENIED ═══ */
+.denied{display:flex;align-items:center;justify-content:center;min-height:100vh;flex-direction:column;text-align:center;padding:2rem}
+.denied h1{font:600 1.8rem var(--font-d);color:var(--white);margin-bottom:.8rem}
+.denied p{font:400 .95rem/1.6 var(--font-b);color:var(--text2);max-width:400px;margin-bottom:1.5rem}
+.denied a{font:500 .9rem var(--font-d);padding:.7rem 1.5rem;background:var(--accent);color:var(--bg);border-radius:999px;display:inline-block}
+
+/* ═══ GATE (no-token visitors) ═══ */
+.gate{display:flex;align-items:center;justify-content:center;min-height:100vh;flex-direction:column;text-align:center;padding:2rem}
 .gate h1{font:600 clamp(1.5rem,4vw,2rem)/1.2 var(--font-d);color:var(--white);margin-bottom:.8rem}
-.gate p{font:400 .95rem/1.6 var(--font-b);color:var(--text2);margin-bottom:2rem;max-width:420px;margin-left:auto;margin-right:auto}
-.gate-form{display:flex;flex-direction:column;gap:1rem;max-width:400px;margin:0 auto}
-.gate-input{font:400 .95rem var(--font-b);padding:.8rem 1.2rem;background:var(--bg2);border:1px solid rgba(129,140,248,.15);border-radius:12px;color:var(--text);outline:none;transition:border-color .3s}
+.gate p{font:400 .95rem/1.6 var(--font-b);color:var(--text2);max-width:420px;margin-bottom:2rem}
+.gate-form{display:flex;flex-direction:column;gap:.8rem;max-width:380px;width:100%}
+.gate-input{font:.9rem var(--font-b);padding:.7rem 1rem;background:var(--bg2);border:1px solid rgba(129,140,248,.15);border-radius:10px;color:var(--text);outline:none;transition:border-color .3s}
 .gate-input:focus{border-color:var(--accent)}
 .gate-input::placeholder{color:var(--text3)}
-.gate-btn{font:600 .9rem var(--font-d);padding:.8rem 1.5rem;background:var(--accent);color:var(--bg);border:none;border-radius:999px;cursor:pointer;transition:all .3s}
-.gate-btn:hover{background:var(--white);transform:translateY(-2px)}
-.gate-error{font:.8rem var(--font-m);color:var(--red);margin-top:.5rem;opacity:0;transition:opacity .3s}
-.gate-error.show{opacity:1}
-.gate-hint{font:.75rem var(--font-b);color:var(--text3);margin-top:1.5rem}
+.gate-btn{font:600 .9rem var(--font-d);padding:.75rem 1.5rem;background:var(--accent);color:var(--bg);border:none;border-radius:999px;cursor:pointer;transition:all .3s;margin-top:.5rem}
+.gate-btn:hover{background:var(--white)}
+.gate-error{font:.78rem var(--font-m);color:var(--red);height:1.2rem}
+.gate-hint{font:.72rem var(--font-b);color:var(--text3);margin-top:1rem}
+.gate-notice{font:.6rem var(--font-m);color:var(--text3);opacity:.5;margin-top:1.5rem;max-width:350px}
 
-/* Tracking notice */
-.track-notice{font:.65rem var(--font-m);color:var(--text3);margin-top:2rem;opacity:.5}
+/* ═══ RESUME SHARED ═══ */
+.r-header{margin-bottom:2.5rem;padding-bottom:1.5rem;border-bottom:1px solid rgba(129,140,248,.1)}
+.r-name{font:700 clamp(1.8rem,5vw,2.8rem)/1.1 var(--font-d);color:var(--white)}
+.r-tagline{font:400 1rem var(--font-b);color:var(--accent);margin-top:.3rem}
+.r-contact{font:.78rem var(--font-m);color:var(--text3);margin-top:.8rem;line-height:1.8}
+.r-contact a{color:var(--text3)}
+.r-contact a:hover{color:var(--accent)}
+.r-section{margin-bottom:2.5rem}
+.r-section-title{font:600 .7rem var(--font-m);color:var(--accent);letter-spacing:.18em;text-transform:uppercase;margin-bottom:1.2rem;padding-bottom:.4rem;border-bottom:1px solid rgba(129,140,248,.08)}
+.r-item{margin-bottom:1.5rem}
+.r-role{font:600 1.05rem/1.3 var(--font-d);color:var(--white)}
+.r-org{font:400 .9rem var(--font-b);color:var(--text2)}
+.r-date{font:.72rem var(--font-m);color:var(--text3);margin-top:.15rem}
+.r-item ul{margin-top:.5rem;padding-left:1.2rem}
+.r-item li{font:400 .85rem/1.65 var(--font-b);color:var(--text2);margin-bottom:.25rem}
+.r-pills{display:flex;flex-wrap:wrap;gap:.35rem}
+.r-pills span{font:.7rem var(--font-m);color:var(--text2);padding:.2rem .5rem;background:rgba(129,140,248,.06);border-radius:6px}
+.r-actions{display:flex;gap:.8rem;margin-top:2rem;flex-wrap:wrap}
+.r-actions a,.r-actions button{font:500 .82rem var(--font-d);padding:.55rem 1.1rem;border-radius:999px;text-decoration:none;transition:all .3s;cursor:pointer;border:none}
+.r-btn-primary{background:var(--accent);color:var(--bg)}
+.r-btn-primary:hover{background:var(--white)}
+.r-btn-ghost{background:transparent;color:var(--text3);border:1px solid rgba(148,163,184,.15)!important}
+.r-btn-ghost:hover{color:var(--accent);border-color:var(--accent)!important}
+.r-watermark{font:.58rem var(--font-m);color:var(--text3);opacity:.3;margin-top:2.5rem;text-align:center;line-height:1.6}
 
-/* Resume view */
-.resume-view{display:none;animation:fadeIn .8s ease}
-.resume-header{text-align:left;margin-bottom:2rem;padding-bottom:1.5rem;border-bottom:1px solid rgba(129,140,248,.1)}
-.resume-header h1{font:700 clamp(1.8rem,4vw,2.5rem)/1.1 var(--font-d);color:var(--white);margin-bottom:.3rem}
-.resume-header .subtitle{font:400 1rem var(--font-b);color:var(--accent)}
-.resume-header .contact-line{font:.8rem var(--font-m);color:var(--text3);margin-top:.8rem;line-height:1.8}
-.resume-section{text-align:left;margin-bottom:2rem}
-.resume-section h2{font:600 .75rem var(--font-m);color:var(--accent);letter-spacing:.15em;text-transform:uppercase;margin-bottom:1rem;padding-bottom:.4rem;border-bottom:1px solid rgba(129,140,248,.08)}
-.resume-item{margin-bottom:1.5rem}
-.resume-item .role{font:600 1rem/1.3 var(--font-d);color:var(--white)}
-.resume-item .org{font:400 .9rem var(--font-b);color:var(--text2)}
-.resume-item .date{font:.75rem var(--font-m);color:var(--text3);margin-top:.2rem}
-.resume-item ul{margin-top:.5rem;padding-left:1.2rem}
-.resume-item li{font:400 .85rem/1.6 var(--font-b);color:var(--text2);margin-bottom:.3rem}
-.resume-skills{display:flex;flex-wrap:wrap;gap:.4rem}
-.resume-skills span{font:.72rem var(--font-m);color:var(--text2);padding:.2rem .5rem;background:rgba(129,140,248,.06);border-radius:6px}
-.resume-actions{display:flex;gap:1rem;margin-top:2rem;flex-wrap:wrap}
-.resume-actions a{font:500 .85rem var(--font-d);padding:.6rem 1.2rem;border-radius:999px;text-decoration:none;transition:all .3s}
-.dl-btn{background:var(--accent);color:var(--bg)}
-.dl-btn:hover{background:var(--white)}
-.back-btn{color:var(--text3);border:1px solid rgba(148,163,184,.15)}
-.back-btn:hover{color:var(--accent);border-color:var(--accent)}
-.visitor-id{font:.6rem var(--font-m);color:var(--text3);opacity:.3;margin-top:2rem;text-align:center}
+/* ═══ FAN PERSONA ═══ */
+.fan .r-header{border-bottom-color:rgba(245,158,11,.15)}
+.fan .r-tagline{color:var(--amber)}
+.fan .r-section-title{color:var(--amber);border-bottom-color:rgba(245,158,11,.1)}
+.fan .milestones{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:1rem;margin-bottom:2rem}
+.fan .milestone{text-align:center;padding:1.2rem .8rem;background:var(--bg2);border:1px solid rgba(245,158,11,.08);border-radius:12px}
+.fan .milestone .num{font:700 clamp(1.5rem,4vw,2rem)/1 var(--font-d);color:var(--amber)}
+.fan .milestone .lbl{font:.68rem var(--font-m);color:var(--text3);margin-top:.3rem}
+.fan .milestone .live{display:inline-flex;align-items:center;gap:.25rem;font:.55rem var(--font-m);color:var(--green);margin-top:.3rem}
+.fan .milestone .live::before{content:'';width:4px;height:4px;background:var(--green);border-radius:50%;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.fan .disco-item{display:flex;justify-content:space-between;align-items:center;padding:.8rem 1rem;background:var(--bg2);border-radius:10px;margin-bottom:.5rem;border:1px solid rgba(245,158,11,.06)}
+.fan .disco-item .title{font:500 .9rem var(--font-d);color:var(--white)}
+.fan .disco-item .meta{font:.7rem var(--font-m);color:var(--text3)}
+.fan .disco-item .streams{font:.72rem var(--font-m);color:var(--amber)}
+.fan .story-block{padding:1.5rem;background:var(--bg2);border-radius:12px;border:1px solid rgba(245,158,11,.08);margin-bottom:1.5rem;position:relative}
+.fan .story-block::before{content:'"';position:absolute;top:-.1rem;left:.8rem;font:700 3.5rem var(--font-d);color:var(--amber);opacity:.1}
+.fan .story-block p{font:400 .95rem/1.7 var(--font-b);color:var(--text);position:relative;z-index:1}
 
-@keyframes fadeIn{from{opacity:0;transform:translateY(15px)}to{opacity:1;transform:translateY(0)}}
+/* ═══ RECRUITER PERSONA ═══ */
+.recruiter .r-header{border-bottom-color:rgba(129,140,248,.15)}
+.recruiter .skill-cats{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem}
+.recruiter .skill-cat{padding:1rem;background:var(--bg2);border-radius:10px;border:1px solid rgba(129,140,248,.06)}
+.recruiter .skill-cat h4{font:600 .68rem var(--font-m);color:var(--accent);letter-spacing:.1em;margin-bottom:.6rem;text-transform:uppercase}
+.recruiter .proj-card{padding:1.2rem;background:var(--bg2);border-radius:10px;border:1px solid rgba(129,140,248,.06);margin-bottom:.8rem}
+.recruiter .proj-card .r-pills{margin-top:.5rem}
+
+/* ═══ CLIENT PERSONA ═══ */
+.client .r-header{border-bottom-color:rgba(0,200,240,.15)}
+.client .r-tagline{color:var(--cyan)}
+.client .r-section-title{color:var(--cyan);border-bottom-color:rgba(0,200,240,.1)}
+.client .kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:1rem;margin-bottom:2rem}
+.client .kpi{text-align:center;padding:1.2rem .8rem;background:var(--bg2);border:1px solid rgba(0,200,240,.08);border-radius:12px}
+.client .kpi .num{font:700 clamp(1.5rem,4vw,2rem)/1 var(--font-d);color:var(--cyan)}
+.client .kpi .lbl{font:.68rem var(--font-m);color:var(--text3);margin-top:.3rem}
+.client .svc-card{padding:1.2rem;background:var(--bg2);border-radius:10px;border:1px solid rgba(0,200,240,.06);margin-bottom:.6rem}
+.client .svc-card h4{font:600 .95rem var(--font-d);color:var(--white);margin-bottom:.3rem}
+.client .svc-card p{font:400 .82rem/1.6 var(--font-b);color:var(--text2)}
+.client .svc-card .served{font:.68rem var(--font-m);color:var(--text3);margin-top:.3rem}
+.client .case-study{padding:1.5rem;background:var(--bg2);border:1px solid rgba(0,200,240,.1);border-radius:12px;margin-bottom:1.5rem}
+.client .case-study h4{font:600 1rem var(--font-d);color:var(--white);margin-bottom:.8rem}
+.client .case-study .cs-label{font:.65rem var(--font-m);color:var(--cyan);letter-spacing:.1em;text-transform:uppercase;margin-top:.8rem;margin-bottom:.3rem}
+.client .case-study p{font:400 .85rem/1.6 var(--font-b);color:var(--text2)}
+.client .case-study ul{padding-left:1.2rem;margin-top:.3rem}
+.client .case-study li{font:400 .85rem/1.6 var(--font-b);color:var(--green)}
+.client .process-steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:.8rem;counter-reset:cstep}
+.client .proc-step{padding:1rem;background:var(--bg2);border-radius:10px;border:1px solid rgba(0,200,240,.06);counter-increment:cstep;position:relative}
+.client .proc-step::before{content:counter(cstep,decimal-leading-zero);font:700 1.8rem var(--font-d);color:rgba(0,200,240,.08);position:absolute;top:.5rem;right:.6rem}
+.client .proc-step h4{font:600 .85rem var(--font-d);color:var(--white);margin-bottom:.2rem}
+.client .proc-step p{font:400 .75rem/1.5 var(--font-b);color:var(--text3)}
 
 @media(max-width:600px){
-  body{padding:1.5rem}
-  .resume-view{max-width:100%}
+  .page{padding:2rem 1.5rem 3rem}
+  .fan .milestones{grid-template-columns:repeat(2,1fr)}
+  .client .kpi-grid{grid-template-columns:repeat(2,1fr)}
+  .recruiter .skill-cats{grid-template-columns:1fr}
 }
 </style>
 </head>
 <body>
 
-<div class="container">
-
-<!-- GATE -->
-<div class="gate" id="gate">
-<div class="gate-icon">🔐</div>
-<h1>Verify to view resume</h1>
-<p>This resume is access-controlled. Answer the question below to continue. Your visit is being recorded.</p>
-<div class="gate-form">
-<input class="gate-input" id="gateName" type="text" placeholder="Your full name" required autocomplete="name" />
-<input class="gate-input" id="gateEmail" type="email" placeholder="Your email address" required autocomplete="email" />
-<input class="gate-input" id="gateCompany" type="text" placeholder="Company / Organization" autocomplete="organization" />
-<input class="gate-input" id="gateAnswer" type="text" placeholder="What instrument did Sijoy learn first?" autocomplete="off" />
-<button class="gate-btn" id="gateSubmit">View Resume →</button>
-<div class="gate-error" id="gateError">Incorrect. Try again.</div>
+<div id="app">
+<div class="loading-screen" id="loadingScreen">
+<div class="spinner"></div>
+<p>Verifying access...</p>
 </div>
-<div class="gate-hint">Hint: It's mentioned in the story on sijoy.joshoit.com</div>
-<div class="track-notice">By proceeding, you acknowledge that your visit details (name, email, IP, device info, timestamp) are logged.</div>
-</div>
-
-<!-- DECOY RESUME (shown on wrong answer) -->
-<div class="resume-view" id="decoyResume">
-<div class="resume-header">
-<h1>Sijoy Almeida</h1>
-<div class="subtitle">Software Developer</div>
-<div class="contact-line">Boston, MA · almeida.si@northeastern.edu</div>
-</div>
-<div class="resume-section">
-<h2>Education</h2>
-<div class="resume-item">
-<div class="role">MS Information Systems</div>
-<div class="org">Northeastern University, Boston</div>
-<div class="date">2023 – 2025</div>
-</div>
-<div class="resume-item">
-<div class="role">B.E. Information Technology</div>
-<div class="org">University of Mumbai</div>
-<div class="date">2018 – 2022</div>
-</div>
-</div>
-<div class="resume-section">
-<h2>Experience</h2>
-<div class="resume-item">
-<div class="role">IT Consultant</div>
-<div class="org">JoSho IT Solutions</div>
-<div class="date">2019 – Present</div>
-<ul><li>Provided IT support to small businesses</li><li>Set up networking and security systems</li></ul>
-</div>
-</div>
-<div class="resume-section">
-<h2>Skills</h2>
-<div class="resume-skills">
-<span>Python</span><span>JavaScript</span><span>React</span><span>Node.js</span><span>SQL</span><span>AWS</span><span>Docker</span><span>Git</span>
-</div>
-</div>
-<div class="resume-actions">
-<a href="https://sijoy.joshoit.com" class="back-btn">← Back to site</a>
-</div>
-<div class="visitor-id" id="decoyVisitorId"></div>
-</div>
-
-<!-- REAL RESUME (shown on correct answer, decrypted) -->
-<div class="resume-view" id="realResume"></div>
-
 </div>
 
 <script>
 (function(){
 'use strict';
 
-var CORRECT_ANSWERS = ['piano','the piano','a piano','keyboard','the keyboard'];
-var MAX_ATTEMPTS = 3;
-var attempts = 0;
-var visitorData = {};
+/* ═══════════════════════════════════════════════════════════
+   CRYPTO: Token generation & validation
+   
+   Token format: base64url( IV(12) + AES-GCM-encrypted(JSON) )
+   Payload: { persona, name, email, company, exp, iat, nonce }
+   Key derived from MASTER_SECRET via PBKDF2
+   ═══════════════════════════════════════════════════════════ */
 
-function generateId(){
-  return 'v_'+Date.now().toString(36)+'_'+Math.random().toString(36).substr(2,6);
+var MASTER_SECRET = 'jsh-2026-s1j0y-r3sum3-k3y-!@#';
+var SALT = 'josho-resume-salt-v2';
+var GITHUB_RAW = 'https://raw.githubusercontent.com/sijoyalmeida09/Sijoy-2.0/main/resume-data/';
+
+var app = document.getElementById('app');
+
+function b64url(buf){return btoa(String.fromCharCode.apply(null,new Uint8Array(buf))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'')}
+function unb64url(s){s=s.replace(/-/g,'+').replace(/_/g,'/');while(s.length%4)s+='=';var bin=atob(s);var buf=new Uint8Array(bin.length);for(var i=0;i<bin.length;i++)buf[i]=bin.charCodeAt(i);return buf}
+
+async function getKey(){
+  var enc=new TextEncoder();
+  var km=await crypto.subtle.importKey('raw',enc.encode(MASTER_SECRET),'PBKDF2',false,['deriveKey']);
+  return crypto.subtle.deriveKey({name:'PBKDF2',salt:enc.encode(SALT),iterations:100000,hash:'SHA-256'},km,{name:'AES-GCM',length:256},false,['encrypt','decrypt']);
 }
 
-function collectFingerprint(){
-  var d = {
-    vid: generateId(),
-    ts: new Date().toISOString(),
-    tz: Intl.DateTimeFormat().resolvedOptions().timeZone,
-    lang: navigator.language,
-    platform: navigator.platform,
-    ua: navigator.userAgent,
-    screen: screen.width+'x'+screen.height,
-    depth: screen.colorDepth,
-    cores: navigator.hardwareConcurrency || 'unknown',
-    memory: navigator.deviceMemory || 'unknown',
-    touch: 'ontouchstart' in window,
-    referrer: document.referrer || 'direct',
-    url: window.location.href
-  };
-  try{ d.connection = navigator.connection ? navigator.connection.effectiveType : 'unknown'; }catch(e){}
-  return d;
-}
-
-function getIP(callback){
-  fetch('https://api.ipify.org?format=json')
-    .then(function(r){return r.json()})
-    .then(function(d){callback(d.ip)})
-    .catch(function(){callback('unknown')});
-}
-
-function logVisitor(data){
-  visitorData = data;
-  var logKey = 'resume_visitors';
-  var existing = [];
-  try{ existing = JSON.parse(localStorage.getItem(logKey) || '[]'); }catch(e){}
-  existing.push(data);
-  try{ localStorage.setItem(logKey, JSON.stringify(existing)); }catch(e){}
-
-  // Beacon to a logging endpoint if you set one up
-  // navigator.sendBeacon('/api/resume-track', JSON.stringify(data));
-
-  console.log('%c[RESUME TRACKER] Visitor logged:', 'color:#818CF8;font-weight:bold', data);
-}
-
-// AES-256 encryption/decryption using Web Crypto API
-async function deriveKey(password){
-  var enc = new TextEncoder();
-  var keyMaterial = await crypto.subtle.importKey('raw', enc.encode(password), 'PBKDF2', false, ['deriveKey']);
-  return crypto.subtle.deriveKey(
-    {name:'PBKDF2', salt:enc.encode('sijoy-resume-salt-2026'), iterations:100000, hash:'SHA-256'},
-    keyMaterial,
-    {name:'AES-GCM', length:256},
-    false,
-    ['decrypt']
-  );
-}
-
-async function decryptContent(encryptedB64, password){
+async function decryptToken(token){
   try{
-    var raw = Uint8Array.from(atob(encryptedB64), function(c){return c.charCodeAt(0)});
-    var iv = raw.slice(0,12);
-    var data = raw.slice(12);
-    var key = await deriveKey(password);
-    var decrypted = await crypto.subtle.decrypt({name:'AES-GCM',iv:iv}, key, data);
-    return new TextDecoder().decode(decrypted);
-  }catch(e){
-    return null;
+    var raw=unb64url(token);
+    var iv=raw.slice(0,12);
+    var ct=raw.slice(12);
+    var key=await getKey();
+    var pt=await crypto.subtle.decrypt({name:'AES-GCM',iv:iv},key,ct);
+    return JSON.parse(new TextDecoder().decode(pt));
+  }catch(e){return null}
+}
+
+async function encryptPayload(payload){
+  var key=await getKey();
+  var iv=crypto.getRandomValues(new Uint8Array(12));
+  var enc=new TextEncoder();
+  var ct=await crypto.subtle.encrypt({name:'AES-GCM',iv:iv},key,enc.encode(JSON.stringify(payload)));
+  var merged=new Uint8Array(12+ct.byteLength);
+  merged.set(iv);merged.set(new Uint8Array(ct),12);
+  return b64url(merged);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   VISITOR TRACKING
+   ═══════════════════════════════════════════════════════════ */
+
+function fingerprint(){
+  return{
+    vid:'v_'+Date.now().toString(36)+'_'+Math.random().toString(36).substr(2,6),
+    ts:new Date().toISOString(),
+    tz:Intl.DateTimeFormat().resolvedOptions().timeZone,
+    lang:navigator.language,
+    ua:navigator.userAgent,
+    screen:screen.width+'x'+screen.height,
+    cores:navigator.hardwareConcurrency||'?',
+    referrer:document.referrer||'direct',
+    url:location.href
+  };
+}
+
+function logVisit(data){
+  var key='resume_visitors';
+  try{var arr=JSON.parse(localStorage.getItem(key)||'[]');arr.push(data);localStorage.setItem(key,JSON.stringify(arr))}catch(e){}
+  console.log('%c[RESUME TRACKER]','color:#818CF8;font-weight:bold',data);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   DATA FETCHING (GitHub raw)
+   ═══════════════════════════════════════════════════════════ */
+
+async function fetchPersonaData(persona){
+  var url=GITHUB_RAW+persona+'.json?t='+Date.now();
+  try{
+    var r=await fetch(url);
+    if(!r.ok)throw new Error(r.status);
+    return r.json();
+  }catch(e){return null}
+}
+
+/* ═══════════════════════════════════════════════════════════
+   RENDERERS — Three completely different layouts
+   ═══════════════════════════════════════════════════════════ */
+
+function renderFan(d,visitor){
+  var h='<div class="page fan">';
+  h+='<div class="r-header"><div class="r-name">'+d.header.name+'</div>';
+  h+='<div class="r-tagline">'+d.header.tagline+'</div>';
+  h+='<div class="r-contact">'+d.header.location+'<br>';
+  h+='<a href="'+d.header.links.youtube+'" target="_blank">YouTube</a> · ';
+  h+='<a href="'+d.header.links.spotify+'" target="_blank">Spotify</a> · ';
+  h+='<a href="'+d.header.links.instagram+'" target="_blank">Instagram</a> · ';
+  h+='<a href="'+d.header.links.apple_music+'" target="_blank">Apple Music</a>';
+  h+='</div></div>';
+
+  h+='<div class="r-section"><div class="r-section-title">The Numbers</div>';
+  h+='<div class="milestones">';
+  d.milestones.forEach(function(m){
+    h+='<div class="milestone"><div class="num">'+m.metric+'</div><div class="lbl">'+m.label+'</div>';
+    if(m.live)h+='<div class="live">LIVE</div>';
+    h+='</div>';
+  });
+  h+='</div></div>';
+
+  h+='<div class="r-section"><div class="r-section-title">The Story</div>';
+  h+='<div class="story-block">';
+  d.story.paragraphs.forEach(function(p){h+='<p style="margin-bottom:.8rem">'+p+'</p>'});
+  h+='</div></div>';
+
+  h+='<div class="r-section"><div class="r-section-title">Discography</div>';
+  d.discography.forEach(function(a){
+    h+='<div class="disco-item"><div><div class="title">'+a.title+'</div><div class="meta">'+a.year+' · '+a.note+'</div></div>';
+    h+='<div class="streams">'+a.streams+'</div></div>';
+  });
+  h+='</div>';
+
+  h+='<div class="r-section"><div class="r-section-title">Creative Stack</div>';
+  h+='<div class="r-pills">';
+  d.creative_stack.forEach(function(s){h+='<span>'+s+'</span>'});
+  h+='</div></div>';
+
+  if(d.origin){
+    h+='<div class="r-section"><div class="r-section-title">'+d.origin.title+'</div>';
+    h+='<p style="font:.9rem/1.7 var(--font-b);color:var(--text2)">'+d.origin.text+'</p></div>';
   }
+
+  h+='<div class="r-actions"><a href="https://sijoy.joshoit.com" class="r-btn-ghost">← Back to site</a></div>';
+  h+=watermark(visitor);
+  h+='</div>';
+  return h;
 }
 
-// The real resume content, AES-GCM encrypted with the passphrase derived from the correct answer
-// To update: use the encrypt tool at the bottom of this script's comments
-var ENCRYPTED_RESUME = '';
+function renderRecruiter(d,visitor){
+  var h='<div class="page recruiter">';
+  h+='<div class="r-header"><div class="r-name">'+d.header.name+'</div>';
+  h+='<div class="r-tagline">'+d.header.tagline+'</div>';
+  h+='<div class="r-contact">';
+  h+=d.header.contact.location+' · '+d.header.contact.phone+'<br>';
+  h+='<a href="mailto:'+d.header.contact.email+'">'+d.header.contact.email+'</a> · ';
+  h+='<a href="mailto:'+d.header.contact.email2+'">'+d.header.contact.email2+'</a><br>';
+  h+='<a href="'+d.header.contact.website+'" target="_blank">'+d.header.contact.website.replace('https://','')+'</a> · ';
+  h+='<a href="'+d.header.contact.linkedin+'" target="_blank">LinkedIn</a> · ';
+  h+='<a href="'+d.header.contact.github+'" target="_blank">GitHub</a>';
+  h+='</div></div>';
 
-// Fallback: if no encrypted blob, build real resume from structured data
-function buildRealResume(visitor){
-  var html = '<div class="resume-header">';
-  html += '<h1>Sijoy Almeida</h1>';
-  html += '<div class="subtitle">Engineer · Founder · Builder</div>';
-  html += '<div class="contact-line">';
-  html += 'Boston, MA · (857) 565-5181<br>';
-  html += 'almeida.si@northeastern.edu · sijoy@joshoit.com<br>';
-  html += '<a href="https://sijoy.joshoit.com" style="color:var(--accent);text-decoration:none">sijoy.joshoit.com</a> · ';
-  html += '<a href="https://linkedin.com/in/sijoyalmeida" style="color:var(--accent);text-decoration:none">LinkedIn</a> · ';
-  html += '<a href="https://github.com/sijoyalmeida09" style="color:var(--accent);text-decoration:none">GitHub</a>';
-  html += '</div></div>';
+  h+='<div class="r-section"><div class="r-section-title">Education</div>';
+  d.education.forEach(function(e){
+    h+='<div class="r-item"><div class="r-role">'+e.degree+(e.gpa?' · GPA '+e.gpa:'')+'</div>';
+    h+='<div class="r-org">'+e.school+'</div><div class="r-date">'+e.date+'</div>';
+    if(e.coursework)h+='<ul><li>'+e.coursework.join(', ')+'</li></ul>';
+    h+='</div>';
+  });
+  h+='</div>';
 
-  html += '<div class="resume-section"><h2>Education</h2>';
-  html += '<div class="resume-item"><div class="role">MS Information Systems · GPA 3.8</div><div class="org">Northeastern University, Boston</div><div class="date">2023 – 2025</div>';
-  html += '<ul><li>Cloud Computing, Application Engineering, Database Design, Network Structures</li></ul></div>';
-  html += '<div class="resume-item"><div class="role">B.E. Information Technology</div><div class="org">University of Mumbai</div><div class="date">2018 – 2022</div></div>';
-  html += '</div>';
+  h+='<div class="r-section"><div class="r-section-title">Experience</div>';
+  d.experience.forEach(function(e){
+    h+='<div class="r-item"><div class="r-role">'+e.role+'</div>';
+    h+='<div class="r-org">'+e.company+'</div><div class="r-date">'+e.date+'</div>';
+    h+='<ul>';e.bullets.forEach(function(b){h+='<li>'+b+'</li>'});h+='</ul></div>';
+  });
+  h+='</div>';
 
-  html += '<div class="resume-section"><h2>Experience</h2>';
-  html += '<div class="resume-item"><div class="role">Founder & Lead Engineer</div><div class="org">JoSho IT Solutions</div><div class="date">2019 – Present</div>';
-  html += '<ul>';
-  html += '<li>Built full IT infrastructure (LAN/WAN, CCTV, POS, CRM) for 50+ SMBs across Boston & Maine</li>';
-  html += '<li>Designed CRM automation with WhatsApp API processing 1,000+ leads/month — client grew from 3 to 27 employees</li>';
-  html += '<li>Achieved 99.9% uptime across all managed client infrastructure with 4-hour SLA response</li>';
-  html += '<li>Built 5-agent autonomous overnight operations system (Node.js, Claude Code, SMTP/IMAP)</li>';
-  html += '<li>Developed AI recommendation engine (RAG + Llama 3 + ChromaDB) with 95% accuracy on 50K+ datasets</li>';
-  html += '</ul></div>';
+  h+='<div class="r-section"><div class="r-section-title">Projects</div>';
+  d.projects.forEach(function(p){
+    h+='<div class="proj-card"><div class="r-role">'+p.name+'</div><div class="r-date">'+p.date+'</div>';
+    h+='<ul>';p.bullets.forEach(function(b){h+='<li>'+b+'</li>'});h+='</ul>';
+    h+='<div class="r-pills">';p.stack.forEach(function(s){h+='<span>'+s+'</span>'});h+='</div></div>';
+  });
+  h+='</div>';
 
-  html += '<div class="resume-item"><div class="role">Founder & Lead Vocalist</div><div class="org">JoSho Music</div><div class="date">2020 – Present</div>';
-  html += '<ul>';
-  html += '<li>76.9K YouTube subscribers, 25M+ views — "Vasaikar Masala" became a Konkani cultural moment</li>';
-  html += '<li>147K+ monthly Spotify listeners, music distributed to all major platforms via CD Baby</li>';
-  html += '<li>42,000+ Instagram Reels created by fans using original music</li>';
-  html += '</ul></div></div>';
+  h+='<div class="r-section"><div class="r-section-title">Technical Skills</div>';
+  h+='<div class="skill-cats">';
+  var catNames={languages:'Languages',backend:'Backend',frontend:'Frontend',databases:'Databases',cloud_devops:'Cloud & DevOps',ai_ml:'AI / ML',infrastructure:'Infrastructure'};
+  Object.keys(d.skills).forEach(function(k){
+    h+='<div class="skill-cat"><h4>'+catNames[k]+'</h4><div class="r-pills">';
+    d.skills[k].forEach(function(s){h+='<span>'+s+'</span>'});
+    h+='</div></div>';
+  });
+  h+='</div></div>';
 
-  html += '<div class="resume-section"><h2>Projects</h2>';
-  html += '<div class="resume-item"><div class="role">RealEstate Genie</div><div class="date">2024</div>';
-  html += '<ul><li>AI-powered property recommendation engine — RAG pipeline, Llama 3, ChromaDB, async processing, 8s→4s latency</li></ul></div>';
-  html += '<div class="resume-item"><div class="role">Gesture-Controlled MIDI Engine</div><div class="date">2025</div>';
-  html += '<ul><li>Computer vision (MediaPipe) tracks 21 hand landmarks at 60 FPS, Euclidean distance → MIDI velocity, sub-15ms latency</li></ul></div>';
-  html += '<div class="resume-item"><div class="role">GoHaven</div><div class="date">2024</div>';
-  html += '<ul><li>Automated real estate media platform — shoot-to-edit workflow, metadata tagging, distributed SQL, 40% faster processing</li></ul></div>';
-  html += '</div>';
-
-  html += '<div class="resume-section"><h2>Technical Skills</h2>';
-  html += '<div class="resume-skills">';
-  html += '<span>Java</span><span>Python</span><span>JavaScript</span><span>TypeScript</span><span>C++</span><span>SQL</span>';
-  html += '<span>Node.js</span><span>React</span><span>Next.js</span><span>Spring Boot</span><span>Django</span><span>Express</span>';
-  html += '<span>PostgreSQL</span><span>MongoDB</span><span>Firebase</span><span>ChromaDB</span><span>DynamoDB</span>';
-  html += '<span>AWS</span><span>Docker</span><span>CI/CD</span><span>Linux</span><span>Git</span>';
-  html += '<span>RAG</span><span>LLM</span><span>OpenCV</span><span>MediaPipe</span><span>TensorFlow</span>';
-  html += '<span>CCTV/IP Cameras</span><span>POS Systems</span><span>LAN/WAN</span><span>VPN</span>';
-  html += '</div></div>';
-
-  html += '<div class="resume-actions">';
-  html += '<a href="./assets/sijoy-resume.pdf" class="dl-btn" download>Download PDF ↓</a>';
-  html += '<a href="https://sijoy.joshoit.com" class="back-btn">← Back to site</a>';
-  html += '</div>';
-  html += '<div class="visitor-id">Access granted to: '+visitor.name+' ('+visitor.email+') · ID: '+visitor.vid+' · '+visitor.ts+'</div>';
-
-  return html;
+  h+='<div class="r-actions"><a href="./assets/sijoy-resume.pdf" class="r-btn-primary" download>Download PDF ↓</a>';
+  h+='<a href="https://sijoy.joshoit.com" class="r-btn-ghost">← Back to site</a></div>';
+  h+=watermark(visitor);
+  h+='</div>';
+  return h;
 }
 
-function buildDecoyId(){
-  var el = document.getElementById('decoyVisitorId');
-  if(el && visitorData.vid) el.textContent = 'Visitor: '+visitorData.vid+' · '+visitorData.ts;
+function renderClient(d,visitor){
+  var h='<div class="page client">';
+  h+='<div class="r-header"><div class="r-name">'+d.header.name+'</div>';
+  h+='<div class="r-tagline">'+d.header.tagline+'</div>';
+  h+='<div class="r-contact">';
+  h+='<a href="mailto:'+d.header.contact.email+'">'+d.header.contact.email+'</a> · ';
+  h+=d.header.contact.phone+'<br>';
+  h+='<a href="'+d.header.contact.website+'" target="_blank">'+d.header.contact.website.replace('https://','')+'</a> · ';
+  h+='<a href="'+d.header.contact.whatsapp+'" target="_blank">WhatsApp</a> · ';
+  h+='<a href="'+d.header.contact.linkedin+'" target="_blank">LinkedIn</a>';
+  h+='</div></div>';
+
+  h+='<p style="font:400 1rem/1.7 var(--font-b);color:var(--text2);margin-bottom:2rem">'+d.value_proposition+'</p>';
+
+  h+='<div class="r-section"><div class="r-section-title">Key Metrics</div>';
+  h+='<div class="kpi-grid">';
+  d.key_metrics.forEach(function(m){
+    h+='<div class="kpi"><div class="num">'+m.metric+'</div><div class="lbl">'+m.label+'</div></div>';
+  });
+  h+='</div></div>';
+
+  h+='<div class="r-section"><div class="r-section-title">Services</div>';
+  d.services.forEach(function(s){
+    h+='<div class="svc-card"><h4>'+s.name+'</h4><p>'+s.description+'</p>';
+    h+='<div class="served">'+s.clients_served+'</div></div>';
+  });
+  h+='</div>';
+
+  h+='<div class="r-section"><div class="r-section-title">Case Study</div>';
+  var cs=d.case_study;
+  h+='<div class="case-study"><h4>'+cs.client+' — '+cs.industry+'</h4>';
+  h+='<div class="cs-label">Challenge</div><p>'+cs.challenge+'</p>';
+  h+='<div class="cs-label">Solution</div><p>'+cs.solution+'</p>';
+  h+='<div class="cs-label">Results</div><ul>';
+  cs.results.forEach(function(r){h+='<li>'+r+'</li>'});
+  h+='</ul></div></div>';
+
+  h+='<div class="r-section"><div class="r-section-title">How We Work</div>';
+  h+='<div class="process-steps">';
+  d.process.forEach(function(s){
+    h+='<div class="proc-step"><h4>'+s.step+'</h4><p>'+s.description+'</p></div>';
+  });
+  h+='</div></div>';
+
+  h+='<div class="r-actions"><a href="mailto:contact@joshoit.com" class="r-btn-primary">Get a Quote →</a>';
+  h+='<a href="https://joshoit.com" class="r-btn-ghost">← joshoit.com</a></div>';
+  h+=watermark(visitor);
+  h+='</div>';
+  return h;
 }
 
-// Init
-var fp = collectFingerprint();
+function watermark(v){
+  if(!v||!v.name)return'';
+  return '<div class="r-watermark">Access granted to: '+esc(v.name)+' ('+esc(v.email||'')+')'+
+    (v.company?' · '+esc(v.company):'')+
+    '<br>ID: '+esc(v.vid||'')+' · '+esc(v.ts||'')+'</div>';
+}
 
-getIP(function(ip){
-  fp.ip = ip;
-});
+function esc(s){var d=document.createElement('div');d.textContent=s;return d.innerHTML}
 
-document.getElementById('gateSubmit').addEventListener('click', function(){
-  var name = document.getElementById('gateName').value.trim();
-  var email = document.getElementById('gateEmail').value.trim();
-  var company = document.getElementById('gateCompany').value.trim();
-  var answer = document.getElementById('gateAnswer').value.trim().toLowerCase();
-  var errEl = document.getElementById('gateError');
+/* ═══════════════════════════════════════════════════════════
+   GATE (fallback for no-token visitors)
+   ═══════════════════════════════════════════════════════════ */
 
-  if(!name || !email){
-    errEl.textContent = 'Please enter your name and email.';
-    errEl.classList.add('show');
+function renderGate(){
+  return '<div class="gate">'+
+    '<div style="font-size:2.5rem;margin-bottom:1rem;opacity:.5">🔐</div>'+
+    '<h1>Verify to view resume</h1>'+
+    '<p>This resume is access-controlled. Enter your details and answer the question to continue.</p>'+
+    '<div class="gate-form">'+
+    '<input class="gate-input" id="gName" placeholder="Your full name" autocomplete="name" />'+
+    '<input class="gate-input" id="gEmail" type="email" placeholder="Email address" autocomplete="email" />'+
+    '<input class="gate-input" id="gCompany" placeholder="Company (optional)" autocomplete="organization" />'+
+    '<select class="gate-input" id="gRole" style="cursor:pointer"><option value="">I am a...</option><option value="fan">Fan / Community</option><option value="recruiter">Recruiter / Hiring Manager</option><option value="client">Potential Client</option></select>'+
+    '<input class="gate-input" id="gAnswer" placeholder="What instrument did Sijoy learn first?" autocomplete="off" />'+
+    '<button class="gate-btn" id="gSubmit">View Resume →</button>'+
+    '<div class="gate-error" id="gError">&nbsp;</div>'+
+    '</div>'+
+    '<div class="gate-hint">Hint: It\'s in the story on sijoy.joshoit.com</div>'+
+    '<div class="gate-notice">By proceeding you acknowledge that your visit details are logged.</div>'+
+    '</div>';
+}
+
+var GATE_ANSWERS=['piano','the piano','a piano','keyboard'];
+var gateAttempts=0;
+
+function initGate(){
+  app.innerHTML=renderGate();
+  var submit=document.getElementById('gSubmit');
+  var answerEl=document.getElementById('gAnswer');
+
+  function tryGate(){
+    var name=document.getElementById('gName').value.trim();
+    var email=document.getElementById('gEmail').value.trim();
+    var company=document.getElementById('gCompany').value.trim();
+    var role=document.getElementById('gRole').value;
+    var answer=answerEl.value.trim().toLowerCase();
+    var errEl=document.getElementById('gError');
+
+    if(!name||!email){errEl.textContent='Name and email are required.';return}
+    if(!role){errEl.textContent='Please select who you are.';return}
+
+    var fp=fingerprint();
+    fp.name=name;fp.email=email;fp.company=company;fp.role=role;fp.answer=answer;fp.attempt=++gateAttempts;
+
+    if(GATE_ANSWERS.indexOf(answer)===-1){
+      fp.granted=false;
+      logVisit(fp);
+      if(gateAttempts>=3){
+        errEl.textContent='Access denied.';
+        setTimeout(function(){renderDenied()},800);
+      }else{
+        errEl.textContent='Incorrect. '+(3-gateAttempts)+' attempt(s) left.';
+      }
+      return;
+    }
+
+    fp.granted=true;
+    logVisit(fp);
+    loadPersona(role,fp);
+  }
+
+  submit.addEventListener('click',tryGate);
+  answerEl.addEventListener('keydown',function(e){if(e.key==='Enter')tryGate()});
+}
+
+function renderDenied(){
+  app.innerHTML='<div class="denied">'+
+    '<div style="font-size:3rem;margin-bottom:1rem">🚫</div>'+
+    '<h1>Access Denied</h1>'+
+    '<p>Too many incorrect attempts. This visit has been logged.</p>'+
+    '<a href="https://sijoy.joshoit.com">← Back to site</a></div>';
+}
+
+/* ═══════════════════════════════════════════════════════════
+   MAIN ROUTER
+   ═══════════════════════════════════════════════════════════ */
+
+async function loadPersona(persona,visitor){
+  app.innerHTML='<div class="loading-screen"><div class="spinner"></div><p>Loading '+persona+' view...</p></div>';
+  var data=await fetchPersonaData(persona);
+  if(!data){
+    app.innerHTML='<div class="denied"><h1>Data unavailable</h1><p>Could not load resume data. Try again later.</p><a href="https://sijoy.joshoit.com">← Back</a></div>';
+    return;
+  }
+  var renderers={fan:renderFan,recruiter:renderRecruiter,client:renderClient};
+  var render=renderers[persona];
+  if(!render){renderDenied();return}
+  app.innerHTML=render(data,visitor);
+}
+
+async function main(){
+  var params=new URLSearchParams(location.search);
+  var token=params.get('token')||params.get('t');
+
+  if(!token){
+    initGate();
     return;
   }
 
-  fp.name = name;
-  fp.email = email;
-  fp.company = company;
-  fp.answer = answer;
-  fp.attempt = ++attempts;
-
-  var correct = CORRECT_ANSWERS.indexOf(answer) !== -1;
-  fp.granted = correct;
-
-  logVisitor(JSON.parse(JSON.stringify(fp)));
-
-  if(correct){
-    document.getElementById('gate').style.display = 'none';
-    var realEl = document.getElementById('realResume');
-    realEl.innerHTML = buildRealResume(fp);
-    realEl.style.display = 'block';
-  } else {
-    if(attempts >= MAX_ATTEMPTS){
-      fp.granted = false;
-      fp.decoy = true;
-      logVisitor(JSON.parse(JSON.stringify(fp)));
-      document.getElementById('gate').style.display = 'none';
-      document.getElementById('decoyResume').style.display = 'block';
-      buildDecoyId();
-    } else {
-      errEl.textContent = 'Incorrect. '+(MAX_ATTEMPTS - attempts)+' attempt(s) remaining.';
-      errEl.classList.add('show');
-    }
+  var payload=await decryptToken(token);
+  if(!payload){
+    app.innerHTML='<div class="denied"><div style="font-size:3rem;margin-bottom:1rem">🔒</div><h1>Invalid or expired link</h1><p>This resume link is not valid. It may have expired or been tampered with.</p><a href="https://sijoy.joshoit.com">← Back to site</a></div>';
+    return;
   }
-});
 
-document.getElementById('gateAnswer').addEventListener('keydown', function(e){
-  if(e.key === 'Enter') document.getElementById('gateSubmit').click();
-});
+  if(payload.exp&&Date.now()>payload.exp){
+    app.innerHTML='<div class="denied"><div style="font-size:3rem;margin-bottom:1rem">⏰</div><h1>Link expired</h1><p>This resume link has expired. Request a new one from Sijoy.</p><a href="https://sijoy.joshoit.com">← Back to site</a></div>';
+    return;
+  }
+
+  var validPersonas=['fan','recruiter','client'];
+  if(validPersonas.indexOf(payload.persona)===-1){renderDenied();return}
+
+  var fp=fingerprint();
+  fp.name=payload.name||'';fp.email=payload.email||'';fp.company=payload.company||'';
+  fp.persona=payload.persona;fp.token_access=true;fp.granted=true;
+  logVisit(fp);
+
+  loadPersona(payload.persona,fp);
+}
+
+main();
+
+/* ═══════════════════════════════════════════════════════════
+   TOKEN GENERATOR (Sijoy only — run from browser console)
+   
+   Usage: Open resume.html, press F12, paste:
+   
+   generateToken('recruiter', 'Jane Smith', 'jane@company.com', 'Acme Corp', 7)
+   
+   Args: persona, name, email, company, expiryDays
+   Returns: full URL with encrypted token
+   ═══════════════════════════════════════════════════════════ */
+
+window.generateToken=async function(persona,name,email,company,expiryDays){
+  expiryDays=expiryDays||7;
+  var payload={
+    persona:persona,
+    name:name||'',
+    email:email||'',
+    company:company||'',
+    iat:Date.now(),
+    exp:Date.now()+(expiryDays*86400000),
+    nonce:Math.random().toString(36).substr(2,8)
+  };
+  var token=await encryptPayload(payload);
+  var base=location.origin+location.pathname;
+  var url=base+'?token='+token;
+  console.log('%c[TOKEN GENERATED]','color:#34D399;font-weight:bold');
+  console.log('Persona:',persona);
+  console.log('For:',name,'('+email+')');
+  console.log('Expires:',new Date(payload.exp).toLocaleDateString());
+  console.log('URL:',url);
+  return url;
+};
+
+window.generateBatchTokens=async function(){
+  console.log('%c=== BATCH TOKEN GENERATOR ===','color:#818CF8;font-weight:bold;font-size:14px');
+  var personas=['fan','recruiter','client'];
+  for(var i=0;i<personas.length;i++){
+    var url=await window.generateToken(personas[i],'Test '+personas[i],'test@example.com','Test Co',30);
+    console.log(personas[i]+': '+url);
+    console.log('---');
+  }
+};
 
 })();
 </script>

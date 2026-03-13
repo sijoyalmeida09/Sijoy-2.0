@@ -1,0 +1,80 @@
+{
+  "persona": "recruiter",
+  "header": {
+    "name": "Sijoy Almeida",
+    "tagline": "Software Engineer · MS Information Systems · Full-Stack Builder",
+    "contact": {
+      "email": "almeida.si@northeastern.edu",
+      "email2": "sijoy@joshoit.com",
+      "phone": "(857) 565-5181",
+      "location": "Boston, MA",
+      "linkedin": "https://linkedin.com/in/sijoyalmeida",
+      "github": "https://github.com/sijoyalmeida09",
+      "website": "https://sijoy.joshoit.com"
+    }
+  },
+  "education": [
+    {
+      "degree": "MS Information Systems",
+      "school": "Northeastern University, Boston",
+      "date": "2023 – 2025",
+      "gpa": "3.8 / 4.0",
+      "coursework": ["Cloud Computing", "Application Engineering", "Database Design", "Network Structures", "Data Science"]
+    },
+    {
+      "degree": "B.E. Information Technology",
+      "school": "University of Mumbai",
+      "date": "2018 – 2022",
+      "coursework": ["Data Structures", "Operating Systems", "Computer Networks", "Software Engineering"]
+    }
+  ],
+  "experience": [
+    {
+      "role": "Founder & Lead Engineer",
+      "company": "JoSho IT Solutions",
+      "date": "2019 – Present",
+      "bullets": [
+        "Architected full IT infrastructure (LAN/WAN, CCTV, POS, CRM) for 50+ SMBs across Boston & Maine, achieving 99.9% uptime",
+        "Designed CRM automation with WhatsApp API processing 1,000+ leads/month — client scaled from 3 to 27 employees on infrastructure built solo",
+        "Built 5-agent autonomous overnight operations system (Node.js, Claude Code, SMTP/IMAP, GitHub Actions) — 13 SOPs, 35 email templates, automated pipeline",
+        "Developed AI-powered property recommendation engine using RAG pipeline (Llama 3 + ChromaDB) achieving 95% accuracy on 50K+ datasets, latency reduced 8s→4s",
+        "Created gesture-controlled MIDI engine using OpenCV + MediaPipe — 21 hand landmarks tracked at 60 FPS, sub-15ms latency to MIDI output"
+      ]
+    }
+  ],
+  "projects": [
+    {
+      "name": "RealEstate Genie",
+      "date": "2024",
+      "stack": ["Python", "Llama 3", "ChromaDB", "RAG", "Streamlit"],
+      "bullets": ["AI recommendation engine with multi-turn conversations, async processing, 95% accuracy on 50K+ property datasets"]
+    },
+    {
+      "name": "Gesture-Controlled MIDI Engine",
+      "date": "2025",
+      "stack": ["C++", "Python", "OpenCV", "MediaPipe", "MIDI"],
+      "bullets": ["Computer vision tracks 21 hand landmarks at 60 FPS, Euclidean distance maps to MIDI velocity for expressive musical control"]
+    },
+    {
+      "name": "GoHaven",
+      "date": "2024",
+      "stack": ["React", "Python", "SQL"],
+      "bullets": ["Automated real estate media platform — shoot-to-edit workflow with metadata tagging and distributed SQL, 40% faster processing"]
+    },
+    {
+      "name": "AI Agent Operations System",
+      "date": "2026",
+      "stack": ["Node.js", "Claude Code", "SMTP", "IMAP", "GitHub Actions"],
+      "bullets": ["5 autonomous agents run overnight: analyst, content creator, website builder, product builder, email automator — compiles morning review by 3:20 AM"]
+    }
+  ],
+  "skills": {
+    "languages": ["Java", "Python", "JavaScript", "TypeScript", "C++", "SQL", "C", "R", "HTML/CSS"],
+    "backend": ["Node.js", "Express", "Spring Boot", "Django", "Flask", "REST APIs", "GraphQL", "Microservices"],
+    "frontend": ["React", "Next.js", "Angular", "Redux", "Tailwind CSS"],
+    "databases": ["PostgreSQL", "MongoDB", "MySQL", "Firebase", "DynamoDB", "ChromaDB"],
+    "cloud_devops": ["AWS (EC2, S3)", "Docker", "CI/CD", "Linux", "Git", "Jenkins", "GitHub Actions"],
+    "ai_ml": ["RAG Pipelines", "LLM Integration", "OpenCV", "MediaPipe", "TensorFlow", "NLP", "Computer Vision"],
+    "infrastructure": ["CCTV/IP Cameras", "POS Systems", "LAN/WAN", "VPN", "Firewall", "Ethernet Cabling"]
+  }
+}

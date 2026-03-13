@@ -1,0 +1,78 @@
+{
+  "persona": "client",
+  "header": {
+    "name": "Sijoy Almeida",
+    "tagline": "Founder, JoSho IT Solutions — Your One Stop IT Solution",
+    "contact": {
+      "email": "contact@joshoit.com",
+      "email_direct": "sijoy@joshoit.com",
+      "phone": "(857) 565-5181",
+      "whatsapp": "https://wa.me/18575655181",
+      "website": "https://joshoit.com",
+      "linkedin": "https://linkedin.com/in/sijoyalmeida"
+    }
+  },
+  "value_proposition": "Full-service IT infrastructure for small businesses. CCTV, POS, networking, automation, web development. One team, one point of contact, enterprise-grade results at SMB-friendly pricing.",
+  "key_metrics": [
+    {"metric": "50+", "label": "Businesses Served"},
+    {"metric": "99.9%", "label": "Uptime Delivered"},
+    {"metric": "4hr", "label": "Avg Support Response"},
+    {"metric": "60%", "label": "Workload Reduction (Avg)"},
+    {"metric": "2019", "label": "Founded"}
+  ],
+  "services": [
+    {
+      "name": "CCTV & Surveillance",
+      "description": "Complete security camera systems — site survey, installation, remote monitoring setup. IP cameras, NVR/DVR, night vision.",
+      "clients_served": "30+ retail, restaurant, and office locations"
+    },
+    {
+      "name": "POS & Business Systems",
+      "description": "Point-of-sale setup, configuration, inventory integration, payment processing, reporting dashboards.",
+      "clients_served": "Convenience stores, restaurants, retail shops"
+    },
+    {
+      "name": "Networking & Infrastructure",
+      "description": "LAN/WAN design, Ethernet cabling, WiFi deployment, router/firewall configuration, VPN setup. Single office to multi-location.",
+      "clients_served": "Scaled from 1 to 3 office locations for CLC Abroad"
+    },
+    {
+      "name": "CRM & Automation",
+      "description": "WhatsApp API integration, lead management, automated follow-ups, email workflows. Built system processing 1,000+ leads/month.",
+      "clients_served": "PropTech startups, education consultancies"
+    },
+    {
+      "name": "Web Development",
+      "description": "Business websites, web applications, custom software. React, Node.js, AWS. From landing pages to full-stack platforms.",
+      "clients_served": "SMBs across Boston and Maine"
+    },
+    {
+      "name": "IT Support & Maintenance",
+      "description": "Ongoing support with SLA-backed response times. P1 Critical: 4hr. P2 High: same day. Remote + on-site.",
+      "clients_served": "All active clients on monthly retainer"
+    }
+  ],
+  "case_study": {
+    "client": "CLC Abroad",
+    "industry": "Education Consultancy",
+    "challenge": "3-person startup needed complete IT infrastructure to scale operations across 3 offices",
+    "solution": "Built LAN/WAN across 3 offices, CCTV surveillance, CRM automation with WhatsApp API processing 1,000+ leads/month, website, and ongoing IT support — all for ₹20,000/month",
+    "results": [
+      "Scaled from 3 to 27 employees",
+      "60% workload reduction through automation",
+      "1,000+ leads/month processed automatically",
+      "99.9% infrastructure uptime"
+    ]
+  },
+  "process": [
+    {"step": "Discovery", "description": "We listen. Understand your business, pain points, budget. No generic pitch."},
+    {"step": "Proposal", "description": "Clear scope, clear pricing, clear timeline. No hidden fees."},
+    {"step": "Build & Install", "description": "Hands-on execution. Cables run, cameras mounted, systems configured."},
+    {"step": "Handoff & Support", "description": "Full walkthrough, documentation, training. Then ongoing SLA-backed support."}
+  ],
+  "credentials": {
+    "education": "MS Information Systems, Northeastern University (GPA 3.8)",
+    "certifications_note": "AWS, Docker, CI/CD pipeline experience",
+    "location": "Boston, MA — serving Boston metro and Maine"
+  }
+}

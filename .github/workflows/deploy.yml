@@ -7,6 +7,7 @@ on:
       - 'index.html'
       - 'sijoy.html'
       - 'resume.html'
+      - 'resume-data/**'
       - 'assets/**'
       - '.github/workflows/deploy.yml'
 
@@ -71,6 +72,7 @@ jobs:
             # --- joshoit.com (business homepage = index.html from repo) ---
             cp $SIJOY_DIR/index.html $ROOT_DIR/index.html
             cp $SIJOY_DIR/resume.html $ROOT_DIR/resume.html 2>/dev/null || true
+            cp -r $SIJOY_DIR/resume-data $ROOT_DIR/resume-data 2>/dev/null || true
             cp -r $SIJOY_DIR/assets $ROOT_DIR/assets 2>/dev/null || true
             echo "✅ joshoit.com deployed (index.html)"
 
