@@ -1,10 +1,11 @@
-name: Deploy to GitHub Pages
+name: Deploy Site
 
 on:
   push:
     branches: [main]
     paths:
       - 'index.html'
+      - 'sijoy.html'
       - 'assets/**'
 
 permissions:
@@ -17,7 +18,7 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  deploy:
+  github-pages:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
@@ -36,3 +37,39 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+
+  hostinger:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Deploy to Hostinger via SSH
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.HOSTINGER_HOST }}
+          username: ${{ secrets.HOSTINGER_USER }}
+          key: ${{ secrets.HOSTINGER_SSH_KEY }}
+          port: ${{ secrets.HOSTINGER_PORT }}
+          script: |
+            REPO_URL="https://github.com/sijoyalmeida09/Sijoy-2.0.git"
+            ROOT_DIR=/home/u641303756/domains/joshoit.com/public_html
+            SIJOY_DIR=$ROOT_DIR/sijoy
+
+            # --- Pull repo into sijoy/ subdirectory ---
+            if [ ! -d "$SIJOY_DIR/.git" ]; then
+              mkdir -p $SIJOY_DIR
+              cd $SIJOY_DIR
+              git clone $REPO_URL .
+            else
+              cd $SIJOY_DIR
+              git pull origin main
+            fi
+
+            # --- joshoit.com (business homepage = index.html) ---
+            cp $SIJOY_DIR/index.html $ROOT_DIR/index.html
+            cp -r $SIJOY_DIR/assets $ROOT_DIR/assets 2>/dev/null || true
+            echo "✅ joshoit.com deployed"
+
+            # --- sijoy.joshoit.com (personal portfolio = sijoy.html) ---
+            cp $SIJOY_DIR/sijoy.html $SIJOY_DIR/index.html 2>/dev/null || true
+            echo "✅ sijoy.joshoit.com deployed"
