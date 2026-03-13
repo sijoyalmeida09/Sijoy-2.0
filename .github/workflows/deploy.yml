@@ -62,14 +62,15 @@ jobs:
               git clone $REPO_URL .
             else
               cd $SIJOY_DIR
-              git pull origin main
+              git fetch origin main
+              git reset --hard origin/main
             fi
 
-            # --- joshoit.com (business homepage = index.html) ---
+            # --- joshoit.com (business homepage = index.html from repo) ---
             cp $SIJOY_DIR/index.html $ROOT_DIR/index.html
             cp -r $SIJOY_DIR/assets $ROOT_DIR/assets 2>/dev/null || true
-            echo "✅ joshoit.com deployed"
+            echo "✅ joshoit.com deployed (index.html)"
 
-            # --- sijoy.joshoit.com (personal portfolio = sijoy.html) ---
-            cp $SIJOY_DIR/sijoy.html $SIJOY_DIR/index.html 2>/dev/null || true
-            echo "✅ sijoy.joshoit.com deployed"
+            # --- sijoy.joshoit.com (personal portfolio = sijoy.html → index.html in sijoy/) ---
+            cp $SIJOY_DIR/sijoy.html $SIJOY_DIR/index.html
+            echo "✅ sijoy.joshoit.com deployed (sijoy.html)"
