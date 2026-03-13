@@ -21,6 +21,25 @@ export type BookingStatus =
 
 export type PayoutStatus = "pending" | "processing" | "settled" | "failed";
 
+export type VerificationStatus = "pending" | "verified" | "rejected";
+
+export type EscrowStatus =
+  | "awaiting_deposit"
+  | "deposit_held"
+  | "full_payment_held"
+  | "released"
+  | "refunded"
+  | "disputed";
+
+export const VALID_BOOKING_TRANSITIONS: Record<BookingStatus, BookingStatus[]> = {
+  requested: ["accepted", "cancelled"],
+  accepted: ["confirmed", "cancelled"],
+  confirmed: ["completed", "cancelled", "disputed"],
+  completed: ["disputed"],
+  cancelled: [],
+  disputed: ["completed", "cancelled"]
+};
+
 export interface Genre {
   id: number;
   slug: string;
@@ -53,6 +72,8 @@ export interface ArtistProfile {
   total_bookings: number;
   avg_rating: number;
   featured: boolean;
+  verification_status: VerificationStatus;
+  rejection_reason: string | null;
   metadata: Record<string, unknown> | null;
   genres?: Genre[];
   instruments?: Instrument[];
@@ -84,6 +105,10 @@ export interface EventBooking {
   artist_payout: number;
   platform_revenue: number;
   status: BookingStatus;
+  escrow_status: EscrowStatus;
+  deposit_amount: number;
+  razorpay_order_id: string | null;
+  razorpay_payment_id: string | null;
   payment_id: string | null;
   payout_status: PayoutStatus;
   payout_settled_at: string | null;

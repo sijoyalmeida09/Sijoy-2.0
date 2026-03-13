@@ -1,9 +1,11 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
+import { useRouter, usePathname } from "next/navigation";
 import { ArtistCard } from "@/components/music/artist-card";
 import { GenrePill } from "@/components/music/genre-pill";
 import { BudgetSlider } from "@/components/music/budget-slider";
+import { ArtistModal } from "@/components/music/artist-modal";
 
 interface ArtistRow {
   id: string;
@@ -24,12 +26,25 @@ interface ArtistRow {
 interface DiscoverClientProps {
   artists: ArtistRow[];
   genres: { slug: string; name: string }[];
+  initialDate?: string;
 }
 
-export function DiscoverClient({ artists, genres }: DiscoverClientProps) {
+export function DiscoverClient({ artists, genres, initialDate }: DiscoverClientProps) {
   const [activeGenre, setActiveGenre] = useState("all");
   const [budget, setBudget] = useState(50000);
   const [search, setSearch] = useState("");
+  const [previewArtistId, setPreviewArtistId] = useState<string | null>(null);
+  const [dateFilter, setDateFilter] = useState(initialDate ?? "");
+  useEffect(() => setDateFilter(initialDate ?? ""), [initialDate]);
+  const router = useRouter();
+  const pathname = usePathname();
+
+  function applyDateFilter(date: string) {
+    setDateFilter(date);
+    const params = new URLSearchParams();
+    if (date) params.set("date", date);
+    router.push(params.toString() ? `${pathname}?${params}` : pathname);
+  }
 
   const filtered = useMemo(() => {
     return artists.filter((a) => {
@@ -45,6 +60,12 @@ export function DiscoverClient({ artists, genres }: DiscoverClientProps) {
 
   return (
     <main className="mx-auto w-full max-w-7xl px-4 py-6 sm:px-6">
+      {previewArtistId && (
+        <ArtistModal
+          artistId={previewArtistId}
+          onClose={() => setPreviewArtistId(null)}
+        />
+      )}
       {/* Hero */}
       <section className="mb-8 rounded-2xl border border-blue-900/30 bg-gradient-to-br from-[#0d1a30] to-[#162746] p-6 sm:p-10">
         <p className="text-xs uppercase tracking-[0.2em] text-joshoBlue">Vasai-Virar&apos;s Music Marketplace</p>
@@ -69,7 +90,7 @@ export function DiscoverClient({ artists, genres }: DiscoverClientProps) {
             />
           ))}
         </div>
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <input
             type="text"
             placeholder="Search by artist name..."
@@ -77,6 +98,15 @@ export function DiscoverClient({ artists, genres }: DiscoverClientProps) {
             onChange={(e) => setSearch(e.target.value)}
             className="rounded-lg border border-blue-800/40 bg-[#0d1a30] px-3 py-2 text-sm text-white outline-none ring-joshoBlue placeholder:text-blue-600 focus:ring-2"
           />
+          <div>
+            <label className="mb-1 block text-xs font-medium text-blue-200">Event date (filter availability)</label>
+            <input
+              type="date"
+              value={dateFilter}
+              onChange={(e) => applyDateFilter(e.target.value)}
+              className="w-full rounded-lg border border-blue-800/40 bg-[#0d1a30] px-3 py-2 text-sm text-white outline-none ring-joshoBlue focus:ring-2"
+            />
+          </div>
           <BudgetSlider min={2000} max={100000} value={budget} onChange={setBudget} label="Max budget per artist" />
         </div>
       </section>
@@ -99,6 +129,7 @@ export function DiscoverClient({ artists, genres }: DiscoverClientProps) {
                 eventRate={a.eventRate}
                 featured={a.featured}
                 available={a.available}
+                onPreview={setPreviewArtistId}
               />
             ))}
           </div>
@@ -129,6 +160,7 @@ export function DiscoverClient({ artists, genres }: DiscoverClientProps) {
                 eventRate={a.eventRate}
                 featured={a.featured}
                 available={a.available}
+                onPreview={setPreviewArtistId}
               />
             ))}
           </div>

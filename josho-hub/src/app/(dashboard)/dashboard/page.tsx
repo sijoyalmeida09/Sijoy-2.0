@@ -23,18 +23,35 @@ async function getAdminMetrics() {
 async function getMusicianData(userId: string) {
   const supabase = createServerSupabaseClient();
 
+  const { data: artist } = await supabase
+    .from("artist_profiles")
+    .select("id")
+    .eq("user_id", userId)
+    .maybeSingle();
+
+  if (!artist) {
+    return { feed: [], bookings: [] };
+  }
+
   const [{ data: bookingRows }, { data: profile }] = await Promise.all([
     supabase
-      .from("bookings")
-      .select("id, event_name, event_date, status, payment_forwarding_status")
-      .eq("musician_id", userId)
+      .from("event_bookings")
+      .select("id, event_name, event_date, status, payout_status")
+      .eq("artist_id", artist.id)
       .order("event_date", { ascending: true })
       .limit(5),
     supabase.from("profiles").select("metadata").eq("id", userId).maybeSingle()
   ]);
 
   const feed = ((profile?.metadata as Record<string, unknown> | null)?.music_feed as string[] | undefined) ?? [];
-  return { feed, bookings: bookingRows ?? [] };
+  const bookings = (bookingRows ?? []).map((b: Record<string, unknown>) => ({
+    id: b.id,
+    event_name: b.event_name,
+    event_date: b.event_date,
+    status: b.status,
+    payment_forwarding_status: b.payout_status ?? "pending"
+  }));
+  return { feed, bookings };
 }
 
 async function getClientData(userId: string) {

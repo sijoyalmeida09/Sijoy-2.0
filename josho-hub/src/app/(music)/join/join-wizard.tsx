@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
+import { PremiumUpsellModal } from "@/components/music/premium-upsell-modal";
 
 const GENRES = [
   { slug: "vasaikar", name: "Vasaikar / Konkani Folk" },
@@ -52,12 +53,44 @@ export function JoinWizard() {
   const [mediaType, setMediaType] = useState<"youtube" | "audio" | "image">("youtube");
 
   const [submitting, setSubmitting] = useState(false);
+  const [suggestedPrice, setSuggestedPrice] = useState<number | null>(null);
+  const [suggestedLoading, setSuggestedLoading] = useState(false);
+  const [showUpsell, setShowUpsell] = useState(false);
+  const upsellShown = useRef(false);
+
+  useEffect(() => {
+    if (selectedInstruments.length === 0) {
+      setSuggestedPrice(null);
+      return;
+    }
+    setSuggestedLoading(true);
+    fetch(
+      `/api/artists/suggested-price?instruments=${selectedInstruments.join(",")}&region=${encodeURIComponent(city)}`
+    )
+      .then((r) => r.json())
+      .then((d) => setSuggestedPrice(d.suggested ?? null))
+      .catch(() => setSuggestedPrice(null))
+      .finally(() => setSuggestedLoading(false));
+  }, [selectedInstruments, city]);
 
   function toggleItem(list: string[], item: string, setter: (v: string[]) => void) {
     setter(list.includes(item) ? list.filter((x) => x !== item) : [...list, item]);
   }
 
+  function shouldShowUpsell(): boolean {
+    if (upsellShown.current) return false;
+    if (mediaType === "audio" && mediaUrl) return true;
+    if (mediaType === "image" && mediaUrl) return true;
+    if (!mediaUrl) return false;
+    return false;
+  }
+
   async function handleSubmit() {
+    if (shouldShowUpsell()) {
+      setShowUpsell(true);
+      upsellShown.current = true;
+      return;
+    }
     setSubmitting(true);
     try {
       const res = await fetch("/api/artists/register", {
@@ -172,6 +205,26 @@ export function JoinWizard() {
 
           <div>
             <label className="mb-2 block text-xs font-semibold uppercase tracking-wide text-blue-200">Instruments / Skills</label>
+            {(suggestedPrice !== null || suggestedLoading) && (
+              <div className="mb-3 flex flex-wrap items-center gap-2 rounded-lg border border-amber-700/40 bg-amber-900/20 px-3 py-2">
+                {suggestedLoading ? (
+                  <span className="text-xs text-amber-200">Loading suggested rate...</span>
+                ) : (
+                  <>
+                    <span className="text-xs text-amber-200">
+                      Regional median for your instruments in {city}: <strong className="text-amber-100">&#8377;{suggestedPrice?.toLocaleString("en-IN")}</strong>
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setEventRate(String(suggestedPrice))}
+                      className="rounded-full bg-amber-600 px-3 py-1 text-xs font-bold text-black hover:bg-amber-500"
+                    >
+                      Use suggested rate
+                    </button>
+                  </>
+                )}
+              </div>
+            )}
             <div className="flex flex-wrap gap-2">
               {INSTRUMENTS.map((i) => (
                 <button
@@ -225,19 +278,24 @@ export function JoinWizard() {
 
           <div>
             <label className="mb-1 block text-xs font-medium text-blue-200">
-              {mediaType === "youtube" ? "YouTube Video URL" : mediaType === "audio" ? "Audio File URL" : "Image URL"}
+              {mediaType === "youtube" ? "YouTube Video or Channel URL" : mediaType === "audio" ? "Audio File URL" : "Image URL"}
             </label>
             <input
               type="url"
               value={mediaUrl}
               onChange={(e) => setMediaUrl(e.target.value)}
-              placeholder={mediaType === "youtube" ? "https://youtube.com/watch?v=..." : "https://..."}
+              placeholder={mediaType === "youtube" ? "Video: youtube.com/watch?v=... or Channel: youtube.com/@username" : "https://..."}
               className="w-full rounded-lg border border-blue-800/40 bg-[#0d1a30] px-3 py-2 text-sm text-white outline-none ring-joshoBlue placeholder:text-blue-700 focus:ring-2"
             />
           </div>
 
           <div className="flex justify-between">
             <button type="button" onClick={() => setStep(2)} className="text-sm text-blue-300 hover:text-white">&larr; Back</button>
+            <PremiumUpsellModal
+              open={showUpsell}
+              onClose={() => setShowUpsell(false)}
+              reason={mediaType === "audio" ? "audio_only" : mediaType === "image" ? "no_video" : "single_media"}
+            />
             <button
               type="button"
               onClick={handleSubmit}
@@ -256,8 +314,8 @@ export function JoinWizard() {
           <div className="text-5xl">&#127928;</div>
           <h2 className="mt-4 text-2xl font-bold text-white">Welcome to Vasaikar Live!</h2>
           <p className="mt-2 text-sm text-green-200">
-            Your profile is live. Organizers can now discover and book you.
-            Check your email for a magic login link to access your dashboard.
+            Your profile is submitted for review. Once verified, organizers will discover and book you.
+            Check your email for a login link to access your dashboard.
           </p>
           <div className="mt-6 flex flex-wrap justify-center gap-3">
             <a href="/discover" className="rounded-full border border-green-600 px-5 py-2 text-sm text-green-200 hover:bg-green-900/30">

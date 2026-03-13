@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { createAdminSupabaseClient } from "@/lib/supabase/server";
 import { sendWelcomeEmail } from "@/lib/email";
+import { fetchChannelTopVideos, parseYouTubeUrl } from "@/lib/youtube";
 
 const schema = z.object({
   stageName: z.string().min(2).max(100),
@@ -41,6 +42,7 @@ export async function POST(request: Request) {
 
   await supabase.from("profiles").update({ role: "musician", full_name: stageName }).eq("id", userId);
 
+  const region = city === "Vasai-Virar" ? "Palghar" : "Palghar";
   const { data: artistProfile, error: artistError } = await supabase
     .from("artist_profiles")
     .insert({
@@ -49,6 +51,8 @@ export async function POST(request: Request) {
       bio: bio ?? null,
       event_rate: eventRate ?? null,
       city,
+      region,
+      verification_status: "pending",
       onboarded_via: "join_page"
     })
     .select("id")
@@ -76,7 +80,45 @@ export async function POST(request: Request) {
     }
   }
 
-  if (mediaUrl) {
+  if (mediaUrl && mediaType === "youtube") {
+    const parsed = parseYouTubeUrl(mediaUrl);
+    if (parsed?.type === "channel" && parsed.channelInput) {
+      const videos = await fetchChannelTopVideos(parsed.channelInput, 5);
+      if (videos.length > 0) {
+        await supabase.from("artist_media").insert(
+          videos.map((v, i) => ({
+            artist_id: artistId,
+            media_type: "youtube",
+            url: v.url,
+            thumbnail: v.thumbnail,
+            title: v.title,
+            sort_order: i
+          }))
+        );
+      } else {
+        await supabase.from("artist_media").insert({
+          artist_id: artistId,
+          media_type: "youtube",
+          url: mediaUrl,
+          sort_order: 0
+        });
+      }
+    } else if (parsed?.type === "video") {
+      await supabase.from("artist_media").insert({
+        artist_id: artistId,
+        media_type: "youtube",
+        url: mediaUrl,
+        sort_order: 0
+      });
+    } else {
+      await supabase.from("artist_media").insert({
+        artist_id: artistId,
+        media_type: "youtube",
+        url: mediaUrl,
+        sort_order: 0
+      });
+    }
+  } else if (mediaUrl) {
     await supabase.from("artist_media").insert({
       artist_id: artistId,
       media_type: mediaType,

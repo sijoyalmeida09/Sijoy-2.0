@@ -12,10 +12,10 @@ const GENRES = [
   { slug: "marathi", name: "Marathi" }
 ];
 
-async function getArtists() {
+async function getArtists(filterDate?: string) {
   const supabase = createServerSupabaseClient();
 
-  const { data: artists } = await supabase
+  let query = supabase
     .from("artist_profiles")
     .select(`
       id, stage_name, bio, event_rate, city, profile_photo,
@@ -24,11 +24,29 @@ async function getArtists() {
       artist_instruments ( instrument_id, instruments ( slug, name ) )
     `)
     .eq("available", true)
+    .eq("verification_status", "verified")
     .order("featured", { ascending: false })
     .order("search_rank", { ascending: false })
     .limit(60);
 
-  return (artists ?? []).map((a: Record<string, unknown>) => ({
+  const { data: artists } = await query;
+
+  let result = (artists ?? []) as Array<Record<string, unknown>>;
+
+  if (filterDate) {
+    const dayStart = `${filterDate}T00:00:00`;
+    const dayEnd = `${filterDate}T23:59:59`;
+    const { data: booked } = await supabase
+      .from("event_bookings")
+      .select("artist_id")
+      .in("status", ["requested", "accepted", "confirmed", "completed"])
+      .gte("event_date", dayStart)
+      .lte("event_date", dayEnd);
+    const bookedIds = new Set((booked ?? []).map((b) => b.artist_id));
+    result = result.filter((a) => !bookedIds.has(a.id));
+  }
+
+  return result.map((a: Record<string, unknown>) => ({
     id: a.id as string,
     stageName: a.stage_name as string,
     bio: a.bio as string | null,
@@ -47,8 +65,13 @@ async function getArtists() {
   }));
 }
 
-export default async function DiscoverPage() {
-  const artists = await getArtists();
+export default async function DiscoverPage({
+  searchParams
+}: {
+  searchParams: { date?: string };
+}) {
+  const date = searchParams?.date;
+  const artists = await getArtists(date);
 
-  return <DiscoverClient artists={artists} genres={GENRES} />;
+  return <DiscoverClient artists={artists} genres={GENRES} initialDate={date} />;
 }

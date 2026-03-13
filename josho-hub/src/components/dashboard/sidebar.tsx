@@ -4,6 +4,7 @@ import type { Role } from "@/types/domain";
 const navByRole: Record<Role, { href: string; label: string }[]> = {
   admin: [
     { href: "/dashboard", label: "Command Center" },
+    { href: "/admin/artists", label: "Verify Artists" },
     { href: "/my-bookings", label: "All Bookings" },
     { href: "/my-earnings", label: "Revenue" },
     { href: "/discover", label: "Browse Artists" }

@@ -40,13 +40,18 @@ export function BookingWizard({ leadArtist, bandMembers, showBandStep }: Booking
   const [description, setDescription] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
+  const BUNDLE_DISCOUNT_PCT = 10; // 10% off when booking full band (2+ artists)
+
   const allArtists = [
     { artistId: leadArtist.id, stageName: leadArtist.stageName, instrument: leadArtist.instrument, eventRate: leadArtist.eventRate, profilePhoto: leadArtist.profilePhoto },
     ...selectedBand
   ];
   const totalCost = allArtists.reduce((sum, a) => sum + a.eventRate, 0);
-  const platformCut = Math.round(totalCost * (leadArtist.commissionPct / 100));
-  const artistPayout = totalCost - platformCut;
+  const isFullBand = selectedBand.length > 0;
+  const bundleDiscount = isFullBand ? Math.round(totalCost * (BUNDLE_DISCOUNT_PCT / 100)) : 0;
+  const agreedAmount = totalCost - bundleDiscount;
+  const platformCut = Math.round(agreedAmount * (leadArtist.commissionPct / 100));
+  const artistPayout = agreedAmount - platformCut;
 
   async function handleSubmit() {
     setSubmitting(true);
@@ -62,7 +67,7 @@ export function BookingWizard({ leadArtist, bandMembers, showBandStep }: Booking
           eventDate,
           venue,
           description,
-          agreedAmount: totalCost
+          agreedAmount
         })
       });
       if (!res.ok) throw new Error("Booking failed");
@@ -232,10 +237,16 @@ export function BookingWizard({ leadArtist, bandMembers, showBandStep }: Booking
                 <span className="font-medium text-white">&#8377;{a.eventRate.toLocaleString("en-IN")}</span>
               </div>
             ))}
+            {isFullBand && bundleDiscount > 0 && (
+              <div className="flex justify-between text-sm text-amber-400">
+                <span>Full band discount ({BUNDLE_DISCOUNT_PCT}%)</span>
+                <span>-&#8377;{bundleDiscount.toLocaleString("en-IN")}</span>
+              </div>
+            )}
             <div className="mt-3 border-t border-blue-900/30 pt-3">
               <div className="flex justify-between text-sm">
                 <span className="text-blue-300">Total artist fee</span>
-                <span className="font-bold text-white">&#8377;{totalCost.toLocaleString("en-IN")}</span>
+                <span className="font-bold text-white">&#8377;{agreedAmount.toLocaleString("en-IN")}</span>
               </div>
               <div className="flex justify-between text-xs text-blue-400">
                 <span>Platform fee ({leadArtist.commissionPct}%, deducted from artist fee)</span>
@@ -247,7 +258,7 @@ export function BookingWizard({ leadArtist, bandMembers, showBandStep }: Booking
               </div>
             </div>
             <p className="mt-2 text-center text-xs text-blue-500">
-              You pay &#8377;{totalCost.toLocaleString("en-IN")}. Platform fee is deducted from the artist&apos;s side, not yours.
+              You pay &#8377;{agreedAmount.toLocaleString("en-IN")}. Platform fee is deducted from the artist&apos;s side, not yours.
             </p>
           </div>
           <div className="flex justify-between">
@@ -275,7 +286,7 @@ export function BookingWizard({ leadArtist, bandMembers, showBandStep }: Booking
             <div className="flex justify-between"><span className="text-blue-300">Date</span><span className="text-white">{eventDate}</span></div>
             <div className="flex justify-between"><span className="text-blue-300">Venue</span><span className="text-white">{venue || "TBD"}</span></div>
             <div className="flex justify-between"><span className="text-blue-300">Artists</span><span className="text-white">{allArtists.map((a) => a.stageName).join(", ")}</span></div>
-            <div className="flex justify-between border-t border-blue-900/30 pt-2"><span className="text-blue-300">Total</span><span className="text-lg font-bold text-white">&#8377;{totalCost.toLocaleString("en-IN")}</span></div>
+            <div className="flex justify-between border-t border-blue-900/30 pt-2"><span className="text-blue-300">Total</span><span className="text-lg font-bold text-white">&#8377;{agreedAmount.toLocaleString("en-IN")}</span></div>
           </div>
           <p className="text-center text-xs text-blue-400">
             By confirming, a booking request is sent to the artist(s). Payment is collected only after they accept.

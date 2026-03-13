@@ -1,7 +1,13 @@
-﻿cross-page-posting/
+# Legacy / alternate apps — do not use; hub lives in josho-hub/
+cross-page-posting/
 hub/
 josho-portal/
 josho-quote/
+
+# Backend automation (remove from list to version SOPs/scripts in repo)
 josho-ops/
+
 node_modules/
 .env
+.env.local
+.env.*.local

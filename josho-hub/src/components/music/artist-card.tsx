@@ -11,6 +11,8 @@ interface ArtistCardProps {
   eventRate: number | null;
   featured: boolean;
   available: boolean;
+  /** If provided, opens modal on click instead of navigating */
+  onPreview?: (id: string) => void;
 }
 
 export function ArtistCard({
@@ -23,13 +25,14 @@ export function ArtistCard({
   totalBookings,
   eventRate,
   featured,
-  available
+  available,
+  onPreview
 }: ArtistCardProps) {
-  return (
-    <Link
-      href={`/artists/${id}`}
-      className="group relative flex flex-col overflow-hidden rounded-xl border border-blue-900/30 bg-[#13213d] transition-all hover:border-joshoBlue/60 hover:shadow-panel"
-    >
+  const baseClass =
+    "group relative flex flex-col overflow-hidden rounded-xl border border-blue-900/30 bg-[#13213d] transition-all hover:border-joshoBlue/60 hover:shadow-panel";
+
+  const content = (
+    <>
       <div className="relative aspect-[3/4] w-full overflow-hidden bg-[#0d1a30]">
         {profilePhoto ? (
           <img
@@ -89,6 +92,20 @@ export function ArtistCard({
           </span>
         ))}
       </div>
-    </Link>
+    </>
   );
+
+  if (onPreview) {
+    return (
+      <button
+        type="button"
+        onClick={() => onPreview(id)}
+        className={`block w-full text-left ${baseClass}`}
+      >
+        {content}
+      </button>
+    );
+  }
+
+  return <Link href={`/artists/${id}`} className={baseClass}>{content}</Link>;
 }

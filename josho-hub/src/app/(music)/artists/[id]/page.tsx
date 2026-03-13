@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { RatingStars } from "@/components/music/rating-stars";
+import { MediaCarousel } from "@/components/music/media-carousel";
 
 async function getArtist(id: string) {
   const supabase = createServerSupabaseClient();
@@ -129,31 +130,20 @@ export default async function ArtistProfilePage({ params }: { params: { id: stri
         </section>
       )}
 
-      {/* Media gallery */}
+      {/* Media gallery — swipeable carousel */}
       {media.length > 0 && (
         <section className="mb-6 rounded-xl border border-blue-900/30 bg-[#13213d] p-5">
           <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-blue-300">Media</h2>
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-            {media.map((m: Record<string, unknown>) => (
-              <div key={m.id as string} className="overflow-hidden rounded-lg bg-[#0d1a30]">
-                {(m.media_type as string) === "youtube" ? (
-                  <iframe
-                    src={(m.url as string).replace("watch?v=", "embed/")}
-                    className="aspect-video w-full"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope"
-                    allowFullScreen
-                  />
-                ) : (m.media_type as string) === "image" ? (
-                  <img src={m.url as string} alt={(m.title as string) ?? ""} className="aspect-video w-full object-cover" />
-                ) : (
-                  <div className="flex aspect-video items-center justify-center">
-                    <audio controls src={m.url as string} className="w-4/5" />
-                  </div>
-                )}
-                {(m.title as string | null) && <p className="px-2 py-1.5 text-xs text-blue-200">{m.title as string}</p>}
-              </div>
-            ))}
-          </div>
+          <MediaCarousel
+            items={media.map((m: Record<string, unknown>) => ({
+              id: m.id as string,
+              media_type: m.media_type as "image" | "video" | "audio" | "youtube",
+              url: m.url as string,
+              thumbnail: (m.thumbnail as string) ?? null,
+              title: (m.title as string) ?? null,
+              sort_order: (m.sort_order as number) ?? 0
+            }))}
+          />
         </section>
       )}
 

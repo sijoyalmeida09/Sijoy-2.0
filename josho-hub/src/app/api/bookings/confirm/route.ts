@@ -4,8 +4,7 @@ import { createAdminSupabaseClient } from "@/lib/supabase/server";
 import { awardPoints } from "@/lib/points";
 
 const payloadSchema = z.object({
-  bookingId: z.string().uuid(),
-  musicianId: z.string().uuid()
+  bookingId: z.string().uuid()
 });
 
 export async function POST(request: Request) {
@@ -22,13 +21,30 @@ export async function POST(request: Request) {
   }
 
   const supabase = createAdminSupabaseClient();
-  const { bookingId, musicianId } = parsed.data;
+  const { bookingId } = parsed.data;
 
-  const { error } = await supabase.from("bookings").update({ status: "confirmed" }).eq("id", bookingId);
+  const { data: booking } = await supabase
+    .from("event_bookings")
+    .select("artist_id")
+    .eq("id", bookingId)
+    .maybeSingle();
+
+  if (!booking) return NextResponse.json({ error: "Booking not found" }, { status: 404 });
+
+  const { data: artistRow } = await supabase
+    .from("artist_profiles")
+    .select("user_id")
+    .eq("id", (booking as { artist_id: string }).artist_id)
+    .maybeSingle();
+
+  const userId = (artistRow as { user_id: string } | null)?.user_id;
+  if (!userId) return NextResponse.json({ error: "Artist not found" }, { status: 404 });
+
+  const { error } = await supabase.from("event_bookings").update({ status: "confirmed" }).eq("id", bookingId);
   if (error) return NextResponse.json({ error: error.message }, { status: 400 });
 
   await awardPoints({
-    userId: musicianId,
+    userId,
     points: 50,
     reason: "Booking confirmed",
     sourceDomain: "music.joshoit.com",
