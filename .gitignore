@@ -1,0 +1,7 @@
+﻿cross-page-posting/
+hub/
+josho-portal/
+josho-quote/
+josho-ops/
+node_modules/
+.env
