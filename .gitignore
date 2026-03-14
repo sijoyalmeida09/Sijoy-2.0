@@ -6,6 +6,7 @@ josho-quote/
 
 # Backend automation (remove from list to version SOPs/scripts in repo)
 josho-ops/
+overnight-agents.bat
 
 node_modules/
 .env
@@ -14,3 +15,6 @@ node_modules/
 
 # Private credentials — never commit
 PRIVATE_CREDENTIALS.txt
+
+# Cursor plans (reference only; not needed for deploy)
+.cursor/
