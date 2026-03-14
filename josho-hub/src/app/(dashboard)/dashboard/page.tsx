@@ -45,11 +45,11 @@ async function getMusicianData(userId: string) {
 
   const feed = ((profile?.metadata as Record<string, unknown> | null)?.music_feed as string[] | undefined) ?? [];
   const bookings = (bookingRows ?? []).map((b: Record<string, unknown>) => ({
-    id: b.id,
-    event_name: b.event_name,
-    event_date: b.event_date,
-    status: b.status,
-    payment_forwarding_status: b.payout_status ?? "pending"
+    id: b.id as string,
+    event_name: b.event_name as string,
+    event_date: b.event_date as string,
+    status: b.status as string,
+    payment_forwarding_status: (b.payout_status ?? "pending") as string
   }));
   return { feed, bookings };
 }

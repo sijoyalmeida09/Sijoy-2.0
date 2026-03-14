@@ -72,8 +72,8 @@ export default async function BookPage({
     };
   });
 
-  const leadInstruments = ((artist.artist_instruments as Array<{ instruments: { name: string } }>) ?? [])
-    .map((i) => i.instruments.name);
+  const artistInstruments = (artist.artist_instruments as unknown) as Array<{ instruments: Array<{ name: string }> }> | null;
+  const leadInstruments = (artistInstruments ?? []).flatMap((i) => i.instruments.map((x) => x.name));
 
   return (
     <BookingWizard

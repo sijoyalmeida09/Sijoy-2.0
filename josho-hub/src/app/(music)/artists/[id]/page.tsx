@@ -64,10 +64,10 @@ export default async function ArtistProfilePage({ params }: { params: { id: stri
     getRecommendations(artist.id as string)
   ]);
 
-  const genres = ((artist.artist_genres as Array<{ genres: { name: string } }>) ?? []).map((g) => g.genres.name);
-  const instruments = ((artist.artist_instruments as Array<{ instruments: { name: string } }>) ?? []).map(
-    (i) => i.instruments.name
-  );
+  const artistGenres = (artist.artist_genres as unknown) as Array<{ genres: Array<{ name: string }> }> | null;
+  const genres = (artistGenres ?? []).flatMap((g) => g.genres.map((x) => x.name));
+  const artistInstruments = (artist.artist_instruments as unknown) as Array<{ instruments: Array<{ name: string }> }> | null;
+  const instruments = (artistInstruments ?? []).flatMap((i) => i.instruments.map((x) => x.name));
 
   return (
     <main className="mx-auto w-full max-w-5xl px-4 py-6 sm:px-6">

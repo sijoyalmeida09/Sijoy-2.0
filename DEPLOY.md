@@ -34,6 +34,26 @@
 josho-hub needs a Node.js runtime (API routes, auth, Supabase). Hostinger shared hosting and GitHub Pages only serve static files.
 
 **Options when you want it live:**
+- **Vercel** — Import this repo, set **Root Directory** to `josho-hub`, add env vars (see below), deploy.
 - **Hostinger VPS** — if you have one, run `npm run build && npm start` with PM2
 - **Railway / Render** — free tiers with Node.js
 - **Run locally** — `cd josho-hub && npm install && npm run dev`
+
+### Vercel: env vars to set
+
+In Vercel → Project → Settings → Environment Variables, add (values from your `.env.local` or `PRIVATE_CREDENTIALS.txt`; never commit them):
+
+| Variable | Required for |
+|----------|----------------|
+| `NEXT_PUBLIC_SUPABASE_URL` | Auth, DB |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Auth, DB |
+| `SUPABASE_SERVICE_ROLE_KEY` | Server-side admin |
+| `SUPABASE_COOKIE_DOMAIN` | e.g. `.joshoit.com` |
+| `NEXT_PUBLIC_APP_URL` | e.g. `https://music.joshoit.com` |
+| `RAZORPAY_KEY_ID` | Payments |
+| `RAZORPAY_KEY_SECRET` | Payments |
+| `RESEND_API_KEY` | Welcome emails (optional) |
+| `WELCOME_EMAIL_FROM` | Optional |
+| `BOOKING_CONFIRM_WEBHOOK_SECRET` | Optional |
+| `RAZORPAY_WEBHOOK_SECRET` | Payment webhooks (optional) |
+| `YOUTUBE_API_KEY` | Optional |

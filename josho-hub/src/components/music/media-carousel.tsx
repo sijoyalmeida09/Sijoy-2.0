@@ -105,7 +105,9 @@ export function MediaCarousel({ items, className = "" }: MediaCarouselProps) {
     if (!emblaApi) return;
     onSelect();
     emblaApi.on("select", onSelect);
-    return () => emblaApi.off("select", onSelect);
+    return () => {
+      emblaApi.off("select", onSelect);
+    };
   }, [emblaApi, onSelect]);
 
   if (items.length === 0) return null;

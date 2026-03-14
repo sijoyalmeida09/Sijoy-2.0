@@ -35,7 +35,7 @@ export default async function BookingDetailPage({ params }: { params: { id: stri
       <div className="flex items-center gap-4 rounded-xl border border-blue-900/30 bg-[#0d1a30] p-4">
         <div className="h-14 w-14 overflow-hidden rounded-lg bg-[#13213d]">
           {(artist?.profile_photo as string | null) ? (
-            <img src={artist.profile_photo as string} alt="" className="h-full w-full object-cover" />
+            <img src={artist?.profile_photo as string} alt="" className="h-full w-full object-cover" />
           ) : (
             <div className="flex h-full items-center justify-center text-xl text-blue-600">
               {(artist?.stage_name as string)?.charAt(0)}

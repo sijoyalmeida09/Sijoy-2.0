@@ -32,7 +32,8 @@ export default async function MyBookingsPage() {
         ) : (
           <div className="space-y-3">
             {active.map((b) => {
-              const artist = b.artist_profiles as Record<string, unknown> | null;
+              const raw = b.artist_profiles as unknown;
+              const artist = (Array.isArray(raw) ? raw[0] : raw) as Record<string, unknown> | null;
               return (
                 <Link
                   key={b.id as string}
@@ -41,7 +42,7 @@ export default async function MyBookingsPage() {
                 >
                   <div className="h-12 w-12 overflow-hidden rounded-lg bg-[#13213d]">
                     {(artist?.profile_photo as string | null) ? (
-                      <img src={artist.profile_photo as string} alt="" className="h-full w-full object-cover" />
+                      <img src={(artist?.profile_photo as string) ?? ""} alt="" className="h-full w-full object-cover" />
                     ) : (
                       <div className="flex h-full items-center justify-center text-lg text-blue-600">
                         {(artist?.stage_name as string)?.charAt(0) ?? "?"}
@@ -78,7 +79,8 @@ export default async function MyBookingsPage() {
         ) : (
           <div className="space-y-2">
             {past.map((b) => {
-              const artist = b.artist_profiles as Record<string, unknown> | null;
+              const raw = b.artist_profiles as unknown;
+              const artist = (Array.isArray(raw) ? raw[0] : raw) as Record<string, unknown> | null;
               return (
                 <Link
                   key={b.id as string}
