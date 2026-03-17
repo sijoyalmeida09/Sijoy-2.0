@@ -4,9 +4,26 @@ hub/
 josho-portal/
 josho-quote/
 
+# Separate GitHub repos checked out locally — tracked in their own repos
+course-enrollment-jsp/
+library-search-struts/
+
 # Backend automation (remove from list to version SOPs/scripts in repo)
 josho-ops/
 overnight-agents.bat
+
+# Experimental / not ready
+josho-core/
+
+# Local tools with personal data and API keys — never commit
+tools/
+
+# Local PowerShell profile
+profile/
+
+# Generated / binary files
+chromedriver.zip
+latest_versions_info.json
 
 node_modules/
 .env
