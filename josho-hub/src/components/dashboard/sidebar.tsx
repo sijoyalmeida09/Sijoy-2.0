@@ -12,6 +12,7 @@ const navByRole: Record<Role, { href: string; label: string }[]> = {
   musician: [
     { href: "/dashboard", label: "My Dashboard" },
     { href: "/my-gigs", label: "My Gigs" },
+    { href: "/my-wallet", label: "My Wallet" },
     { href: "/my-earnings", label: "My Earnings" },
     { href: "/discover", label: "Browse Artists" }
   ],

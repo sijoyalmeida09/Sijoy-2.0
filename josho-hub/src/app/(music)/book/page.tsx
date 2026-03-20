@@ -1,6 +1,18 @@
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { BookingWizard } from "./booking-wizard";
 
+async function getCurrentUser() {
+  const supabase = createServerSupabaseClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return null;
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("full_name, email")
+    .eq("id", user.id)
+    .maybeSingle();
+  return { id: user.id, name: (profile?.full_name as string) || "", email: (profile?.email as string) || user.email || "" };
+}
+
 async function getArtistForBooking(artistId: string) {
   const supabase = createServerSupabaseClient();
   const { data } = await supabase
@@ -57,7 +69,10 @@ export default async function BookPage({
   }
 
   const showBand = searchParams.band === "true";
-  const recommendations = showBand ? await getBandRecommendations(artistId) : [];
+  const [recommendations, currentUser] = await Promise.all([
+    showBand ? getBandRecommendations(artistId) : Promise.resolve([]),
+    getCurrentUser()
+  ]);
 
   const bandMembers = recommendations.map((rec: Record<string, unknown>) => {
     const rArtist = rec.artist_profiles as Record<string, unknown>;
@@ -87,6 +102,7 @@ export default async function BookPage({
       }}
       bandMembers={bandMembers}
       showBandStep={showBand}
+      currentUser={currentUser}
     />
   );
 }

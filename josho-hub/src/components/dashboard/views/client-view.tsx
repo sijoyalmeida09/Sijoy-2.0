@@ -6,7 +6,7 @@ interface ClientViewProps {
 export function ClientView({ itProjectStatus, savedListings }: ClientViewProps) {
   return (
     <section className="space-y-6">
-      <h2 className="text-xl font-semibold text-white">My JoSho Dashboard</h2>
+      <h2 className="text-xl font-semibold text-white">My Sohaya Dashboard</h2>
       <div className="grid gap-4 md:grid-cols-2">
         <div className="rounded-xl border border-blue-800/40 bg-[#162746] p-4">
           <p className="text-sm uppercase tracking-wide text-blue-200">IT Project Status</p>

@@ -38,5 +38,8 @@ export async function GET(request: Request) {
       .eq("id", user.id);
   }
 
-  return NextResponse.redirect(new URL("/dashboard", url.origin));
+  const redirectTo = url.searchParams.get("redirect") || "/dashboard";
+  // Only allow internal redirects (prevent open redirect)
+  const safeRedirect = redirectTo.startsWith("/") ? redirectTo : "/dashboard";
+  return NextResponse.redirect(new URL(safeRedirect, url.origin));
 }

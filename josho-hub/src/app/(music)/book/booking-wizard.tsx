@@ -21,15 +21,22 @@ interface BandMember {
   profilePhoto: string | null;
 }
 
+interface CurrentUser {
+  id: string;
+  name: string;
+  email: string;
+}
+
 interface BookingWizardProps {
   leadArtist: LeadArtist;
   bandMembers: BandMember[];
   showBandStep: boolean;
+  currentUser: CurrentUser | null;
 }
 
-type Step = "band" | "event" | "budget" | "confirm" | "done";
+type Step = "band" | "event" | "budget" | "details" | "confirm" | "done";
 
-export function BookingWizard({ leadArtist, bandMembers, showBandStep }: BookingWizardProps) {
+export function BookingWizard({ leadArtist, bandMembers, showBandStep, currentUser }: BookingWizardProps) {
   const [step, setStep] = useState<Step>(showBandStep ? "band" : "event");
   const [selectedBand, setSelectedBand] = useState<BandMember[]>([]);
   const [budget, setBudget] = useState(leadArtist.eventRate * 3 || 30000);
@@ -38,6 +45,10 @@ export function BookingWizard({ leadArtist, bandMembers, showBandStep }: Booking
   const [eventDate, setEventDate] = useState("");
   const [venue, setVenue] = useState("");
   const [description, setDescription] = useState("");
+  // Guest / contact details
+  const [guestName, setGuestName] = useState(currentUser?.name || "");
+  const [guestEmail, setGuestEmail] = useState(currentUser?.email || "");
+  const [guestPhone, setGuestPhone] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
   const BUNDLE_DISCOUNT_PCT = 10; // 10% off when booking full band (2+ artists)
@@ -67,7 +78,11 @@ export function BookingWizard({ leadArtist, bandMembers, showBandStep }: Booking
           eventDate,
           venue,
           description,
-          agreedAmount
+          agreedAmount,
+          // Guest details (used when not logged in)
+          guestName: currentUser ? undefined : guestName,
+          guestEmail: currentUser ? undefined : guestEmail,
+          guestPhone: currentUser ? undefined : guestPhone,
         })
       });
       if (!res.ok) throw new Error("Booking failed");
@@ -83,6 +98,7 @@ export function BookingWizard({ leadArtist, bandMembers, showBandStep }: Booking
     ...(showBandStep ? [{ key: "band" as Step, label: "Build Band" }] : []),
     { key: "event", label: "Event Details" },
     { key: "budget", label: "Budget" },
+    { key: "details", label: "Your Details" },
     { key: "confirm", label: "Confirm" }
   ];
 
@@ -267,8 +283,81 @@ export function BookingWizard({ leadArtist, bandMembers, showBandStep }: Booking
             </button>
             <button
               type="button"
-              onClick={() => setStep("confirm")}
+              onClick={() => setStep("details")}
               className="rounded-full bg-joshoBlue px-6 py-2.5 text-sm font-bold text-white hover:opacity-90"
+            >
+              Next: Your Details
+            </button>
+          </div>
+        </section>
+      )}
+
+      {/* Step: Your Details */}
+      {step === "details" && (
+        <section className="space-y-4 rounded-xl border border-blue-900/30 bg-[#13213d] p-5">
+          <h2 className="text-lg font-bold text-white">
+            {currentUser ? "Confirm Booking Details" : "Enter Your Details"}
+          </h2>
+
+          {currentUser ? (
+            // Logged-in: show read-only info
+            <div className="rounded-lg border border-blue-900/20 bg-[#0d1a30] p-4 space-y-2">
+              <p className="text-sm text-blue-200">
+                Logged in as <span className="font-bold text-white">{currentUser.name || currentUser.email}</span>
+              </p>
+              <p className="text-xs text-blue-400">Booking confirmation will be sent to {currentUser.email}.</p>
+            </div>
+          ) : (
+            // Guest: collect contact info
+            <div className="space-y-3">
+              <p className="text-xs text-blue-300">
+                No account needed — just provide your contact details. The artist will reach out directly.
+              </p>
+              <div>
+                <label className="mb-1 block text-xs font-medium text-blue-200">Your Name *</label>
+                <input
+                  type="text"
+                  value={guestName}
+                  onChange={(e) => setGuestName(e.target.value)}
+                  placeholder="e.g. Rahul Sharma"
+                  className="w-full rounded-lg border border-blue-800/40 bg-[#0d1a30] px-3 py-2 text-sm text-white outline-none ring-joshoBlue placeholder:text-blue-700 focus:ring-2"
+                />
+              </div>
+              <div>
+                <label className="mb-1 block text-xs font-medium text-blue-200">Phone Number *</label>
+                <input
+                  type="tel"
+                  value={guestPhone}
+                  onChange={(e) => setGuestPhone(e.target.value)}
+                  placeholder="+91 98765 43210"
+                  className="w-full rounded-lg border border-blue-800/40 bg-[#0d1a30] px-3 py-2 text-sm text-white outline-none ring-joshoBlue placeholder:text-blue-700 focus:ring-2"
+                />
+              </div>
+              <div>
+                <label className="mb-1 block text-xs font-medium text-blue-200">Email (optional)</label>
+                <input
+                  type="email"
+                  value={guestEmail}
+                  onChange={(e) => setGuestEmail(e.target.value)}
+                  placeholder="rahul@email.com"
+                  className="w-full rounded-lg border border-blue-800/40 bg-[#0d1a30] px-3 py-2 text-sm text-white outline-none ring-joshoBlue placeholder:text-blue-700 focus:ring-2"
+                />
+              </div>
+              <p className="text-[10px] text-blue-500">
+                You can create an account later — all bookings will be tracked.
+              </p>
+            </div>
+          )}
+
+          <div className="flex justify-between">
+            <button type="button" onClick={() => setStep("budget")} className="text-sm text-blue-300 hover:text-white">
+              &larr; Back
+            </button>
+            <button
+              type="button"
+              onClick={() => setStep("confirm")}
+              disabled={!currentUser && !guestName.trim()}
+              className="rounded-full bg-joshoBlue px-6 py-2.5 text-sm font-bold text-white hover:opacity-90 disabled:opacity-40"
             >
               Next: Confirm Booking
             </button>

@@ -25,12 +25,12 @@ async function getMusicianData(userId: string) {
 
   const { data: artist } = await supabase
     .from("artist_profiles")
-    .select("id")
+    .select("id, city, is_online")
     .eq("user_id", userId)
     .maybeSingle();
 
   if (!artist) {
-    return { feed: [], bookings: [] };
+    return { feed: [], bookings: [], artistId: null, city: "", isOnline: false };
   }
 
   const [{ data: bookingRows }, { data: profile }] = await Promise.all([
@@ -51,7 +51,13 @@ async function getMusicianData(userId: string) {
     status: b.status as string,
     payment_forwarding_status: (b.payout_status ?? "pending") as string
   }));
-  return { feed, bookings };
+  return {
+    feed,
+    bookings,
+    artistId: artist.id as string,
+    city: (artist.city as string) || "Vasai",
+    isOnline: (artist.is_online as boolean) || false
+  };
 }
 
 async function getClientData(userId: string) {
@@ -82,7 +88,15 @@ export default async function DashboardPage() {
 
   if (profile.role === "musician") {
     const data = await getMusicianData(profile.id);
-    return <MusicianView feed={data.feed} bookings={data.bookings} />;
+    return (
+      <MusicianView
+        feed={data.feed}
+        bookings={data.bookings}
+        artistId={data.artistId}
+        city={data.city}
+        isOnline={data.isOnline}
+      />
+    );
   }
 
   const clientData = await getClientData(profile.id);

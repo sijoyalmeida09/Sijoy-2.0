@@ -11,17 +11,17 @@ export async function sendWelcomeEmail(input: { to: string; fullName?: string | 
   await resend.emails.send({
     from,
     to: input.to,
-    subject: "Welcome to One JoSho account",
+    subject: "Welcome to Sohaya",
     html: `
       <div style="font-family:Arial,Helvetica,sans-serif;line-height:1.6">
         <h2 style="color:#1B2A4A">Welcome, ${name}</h2>
-        <p>Your One JoSho account gives you a unified identity across Music, IT Solutions, and Real Estate services.</p>
+        <p>Your Sohaya account gives you access to Mumbai's premier music marketplace.</p>
         <ul>
-          <li>Single login across JoSho sub-services</li>
+          <li>Discover and book verified musicians</li>
           <li>Unified dashboard and loyalty points</li>
-          <li>Faster updates for bookings, projects, and service notifications</li>
+          <li>Faster updates for bookings and service notifications</li>
         </ul>
-        <p style="margin-top:24px">JoSho Empire Central Hub</p>
+        <p style="margin-top:24px">Sohaya</p>
       </div>
     `
   });

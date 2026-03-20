@@ -2,7 +2,6 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { createAdminSupabaseClient } from "@/lib/supabase/server";
 import { sendWelcomeEmail } from "@/lib/email";
-import { fetchChannelTopVideos, parseYouTubeUrl } from "@/lib/youtube";
 
 const schema = z.object({
   stageName: z.string().min(2).max(100),
@@ -13,121 +12,122 @@ const schema = z.object({
   eventRate: z.number().nullable().optional(),
   genres: z.array(z.string()).min(1),
   instruments: z.array(z.string()).min(1),
+  profilePhoto: z.string().url().nullable().optional(),
+  youtubeUrl: z.string().url().nullable().optional(),
+  instagramHandle: z.string().max(50).nullable().optional(),
   mediaUrl: z.string().url().nullable().optional(),
   mediaType: z.enum(["youtube", "audio", "image"]).default("youtube")
 });
 
 export async function POST(request: Request) {
-  const body = await request.json();
-  const parsed = schema.safeParse(body);
-  if (!parsed.success) return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
-
-  const { stageName, email, phone, city, bio, eventRate, genres, instruments, mediaUrl, mediaType } = parsed.data;
-  const supabase = createAdminSupabaseClient();
-
-  const { data: authData, error: authError } = await supabase.auth.admin.createUser({
-    email,
-    email_confirm: true,
-    user_metadata: { full_name: stageName, phone: phone ?? null }
-  });
-
-  if (authError) {
-    if (authError.message.includes("already been registered")) {
-      return NextResponse.json({ error: "Email already registered. Please login instead." }, { status: 409 });
+  try {
+    const body = await request.json();
+    const parsed = schema.safeParse(body);
+    if (!parsed.success) {
+      return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
     }
-    return NextResponse.json({ error: authError.message }, { status: 400 });
-  }
 
-  const userId = authData.user.id;
+    const {
+      stageName, email, phone, city, bio, eventRate,
+      genres, instruments, profilePhoto, youtubeUrl, instagramHandle, mediaUrl
+    } = parsed.data;
 
-  await supabase.from("profiles").update({ role: "musician", full_name: stageName }).eq("id", userId);
+    const supabase = createAdminSupabaseClient();
 
-  const region = city === "Vasai-Virar" ? "Palghar" : "Palghar";
-  const { data: artistProfile, error: artistError } = await supabase
-    .from("artist_profiles")
-    .insert({
-      user_id: userId,
-      stage_name: stageName,
-      bio: bio ?? null,
-      event_rate: eventRate ?? null,
-      city,
-      region,
-      verification_status: "pending",
-      onboarded_via: "join_page"
-    })
-    .select("id")
-    .single();
-
-  if (artistError) return NextResponse.json({ error: artistError.message }, { status: 400 });
-
-  const artistId = artistProfile.id;
-
-  if (genres.length > 0) {
-    const { data: genreRows } = await supabase.from("genres").select("id, slug").in("slug", genres);
-    if (genreRows && genreRows.length > 0) {
-      await supabase.from("artist_genres").insert(
-        genreRows.map((g: { id: number }) => ({ artist_id: artistId, genre_id: g.id }))
-      );
-    }
-  }
-
-  if (instruments.length > 0) {
-    const { data: instrumentRows } = await supabase.from("instruments").select("id, slug").in("slug", instruments);
-    if (instrumentRows && instrumentRows.length > 0) {
-      await supabase.from("artist_instruments").insert(
-        instrumentRows.map((i: { id: number }) => ({ artist_id: artistId, instrument_id: i.id }))
-      );
-    }
-  }
-
-  if (mediaUrl && mediaType === "youtube") {
-    const parsed = parseYouTubeUrl(mediaUrl);
-    if (parsed?.type === "channel" && parsed.channelInput) {
-      const videos = await fetchChannelTopVideos(parsed.channelInput, 5);
-      if (videos.length > 0) {
-        await supabase.from("artist_media").insert(
-          videos.map((v, i) => ({
-            artist_id: artistId,
-            media_type: "youtube",
-            url: v.url,
-            thumbnail: v.thumbnail,
-            title: v.title,
-            sort_order: i
-          }))
-        );
-      } else {
-        await supabase.from("artist_media").insert({
-          artist_id: artistId,
-          media_type: "youtube",
-          url: mediaUrl,
-          sort_order: 0
-        });
-      }
-    } else if (parsed?.type === "video") {
-      await supabase.from("artist_media").insert({
-        artist_id: artistId,
-        media_type: "youtube",
-        url: mediaUrl,
-        sort_order: 0
-      });
-    } else {
-      await supabase.from("artist_media").insert({
-        artist_id: artistId,
-        media_type: "youtube",
-        url: mediaUrl,
-        sort_order: 0
-      });
-    }
-  } else if (mediaUrl) {
-    await supabase.from("artist_media").insert({
-      artist_id: artistId,
-      media_type: mediaType,
-      url: mediaUrl,
-      sort_order: 0
+    // 1. Create auth user
+    const { data: authData, error: authError } = await supabase.auth.admin.createUser({
+      email,
+      email_confirm: true,
+      user_metadata: { full_name: stageName, phone: phone ?? null }
     });
+
+    if (authError) {
+      if (authError.message.includes("already been registered")) {
+        return NextResponse.json({ error: "Email already registered. Please login instead." }, { status: 409 });
+      }
+      return NextResponse.json({ error: authError.message }, { status: 400 });
+    }
+
+    const userId = authData.user.id;
+
+    // 2. Update profile with role
+    const { error: profileError } = await supabase
+      .from("profiles")
+      .update({ role: "musician", full_name: stageName })
+      .eq("id", userId);
+
+    if (profileError) {
+      console.error("[ArtistRegister] Profile update failed:", profileError.message);
+    }
+
+    // 3. Format instagram URL
+    let instagramUrl: string | null = null;
+    if (instagramHandle) {
+      const handle = instagramHandle.replace(/^@/, "");
+      instagramUrl = `https://instagram.com/${handle}`;
+    }
+
+    // 4. Use youtube channel URL or mediaUrl
+    const finalYoutubeUrl = youtubeUrl || (mediaUrl ?? null);
+
+    // 5. Insert into artist_profiles table
+    const { data: artist, error: artistError } = await supabase
+      .from("artist_profiles")
+      .insert({
+        user_id: userId,
+        stage_name: stageName,
+        bio: bio ?? null,
+        event_rate: eventRate ?? 2000,
+        city: city,
+        region: "Palghar",
+        profile_photo: profilePhoto ?? null,
+        youtube_url: finalYoutubeUrl,
+        instagram_url: instagramUrl,
+        available: true,
+        verification_status: "pending",
+        featured: false,
+        search_rank: 0,
+        total_bookings: 0,
+        avg_rating: 0
+      })
+      .select("id")
+      .single();
+
+    if (artistError) {
+      console.error("[ArtistRegister] Artist profile insert failed:", artistError.message);
+      return NextResponse.json({ error: artistError.message }, { status: 400 });
+    }
+
+    const artistId = artist.id;
+
+    // 6. Link genres
+    const { data: genreRecords } = await supabase
+      .from("genres")
+      .select("id, slug")
+      .in("slug", genres.map(g => g.toLowerCase()));
+
+    if (genreRecords && genreRecords.length > 0) {
+      const genreLinks = genreRecords.map(g => ({ artist_id: artistId, genre_id: g.id }));
+      await supabase.from("artist_genres").insert(genreLinks);
+    }
+
+    // 7. Link instruments
+    const { data: instrumentRecords } = await supabase
+      .from("instruments")
+      .select("id, slug")
+      .in("slug", instruments.map(i => i.toLowerCase()));
+
+    if (instrumentRecords && instrumentRecords.length > 0) {
+      const instrumentLinks = instrumentRecords.map(i => ({ artist_id: artistId, instrument_id: i.id }));
+      await supabase.from("artist_instruments").insert(instrumentLinks);
+    }
+
+    // 8. Send welcome email (non-blocking)
+    sendWelcomeEmail({ to: email, fullName: stageName }).catch(() => {});
+
+    return NextResponse.json({ ok: true, artistId });
+  } catch (err) {
+    console.error("[ArtistRegister] Unexpected error:", err);
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
-
-  await sendWelcomeEmail({ to: email, fullName: stageName });
-
-  return NextResponse.json({ ok: true, artistId });
 }

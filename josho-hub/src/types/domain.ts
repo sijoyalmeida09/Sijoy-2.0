@@ -9,7 +9,7 @@ export interface Profile {
   metadata: Record<string, unknown> | null;
 }
 
-// ── Vasaikar Live ──────────────────────────────
+// ── Sohaya ──────────────────────────────
 
 export type BookingStatus =
   | "requested"

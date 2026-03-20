@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(gh repo:*)",
+      "Bash(find /c/Sijoy_2.0 -type d -name *josho*)",
+      "WebSearch",
+      "Skill(update-config)",
+      "Read(//c/Users/sijoy/Downloads/Document List Analysis and Content Breakdown/**)",
+      "Bash(for f:*)",
+      "Bash(do echo:*)",
+      "Bash(python3 -c \"from docx import Document; doc=Document\\(''$f''\\); [print\\(p.text\\) for p in doc.paragraphs if p.text.strip\\(\\)]\")",
+      "Bash(done)"
+    ]
+  }
+}

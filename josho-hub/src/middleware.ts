@@ -31,15 +31,26 @@ export async function middleware(request: NextRequest) {
     data: { user }
   } = await supabase.auth.getUser();
 
-  if (!user && request.nextUrl.pathname.startsWith("/dashboard")) {
+  const pathname = request.nextUrl.pathname;
+  const protectedPaths = ["/dashboard", "/my-bookings", "/my-gigs", "/my-wallet", "/my-earnings", "/admin"];
+  const isProtected = protectedPaths.some((p) => pathname.startsWith(p));
+
+  if (!user && isProtected) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
+    url.searchParams.set("redirect", pathname);
     return NextResponse.redirect(url);
+  }
+
+  // Redirect logged-in users away from login page
+  if (user && pathname === "/login") {
+    const redirect = request.nextUrl.searchParams.get("redirect") || "/dashboard";
+    return NextResponse.redirect(new URL(redirect, request.url));
   }
 
   return response;
 }
 
 export const config = {
-  matcher: ["/dashboard/:path*"]
+  matcher: ["/dashboard/:path*", "/my-bookings/:path*", "/my-gigs/:path*", "/my-wallet/:path*", "/my-earnings/:path*", "/admin/:path*", "/login"]
 };
