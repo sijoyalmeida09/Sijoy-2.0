@@ -56,13 +56,13 @@ create table if not exists providers (
   updated_at timestamptz not null default now()
 );
 
-create index idx_providers_status on providers(status);
-create index idx_providers_city on providers(city);
-create index idx_providers_is_online on providers(is_online);
-create index idx_providers_is_founder on providers(is_founder);
-create index idx_providers_avg_rating on providers(avg_rating desc);
-create index idx_providers_base_rate on providers(base_rate_inr);
-create index idx_providers_categories on providers using gin(categories);
+create index if not exists idx_providers_status on providers(status);
+create index if not exists idx_providers_city on providers(city);
+create index if not exists idx_providers_is_online on providers(is_online);
+create index if not exists idx_providers_is_founder on providers(is_founder);
+create index if not exists idx_providers_avg_rating on providers(avg_rating desc);
+create index if not exists idx_providers_base_rate on providers(base_rate_inr);
+create index if not exists idx_providers_categories on providers using gin(categories);
 
 -- ============================================================
 -- CLIENTS
@@ -118,9 +118,9 @@ create table if not exists leads (
   updated_at timestamptz not null default now()
 );
 
-create index idx_leads_client_id on leads(client_id);
-create index idx_leads_status on leads(status);
-create index idx_leads_event_date on leads(event_date);
+create index if not exists idx_leads_client_id on leads(client_id);
+create index if not exists idx_leads_status on leads(status);
+create index if not exists idx_leads_event_date on leads(event_date);
 
 -- ============================================================
 -- LEAD PROVIDERS (junction)
@@ -134,7 +134,7 @@ create table if not exists lead_providers (
   unique(lead_id, provider_id)
 );
 
-create index idx_lead_providers_provider_id on lead_providers(provider_id);
+create index if not exists idx_lead_providers_provider_id on lead_providers(provider_id);
 
 -- ============================================================
 -- QUOTES
@@ -153,11 +153,11 @@ create table if not exists quotes (
   created_at timestamptz not null default now()
 );
 
-create index idx_quotes_lead_id on quotes(lead_id);
-create index idx_quotes_provider_id on quotes(provider_id);
+create index if not exists idx_quotes_lead_id on quotes(lead_id);
+create index if not exists idx_quotes_provider_id on quotes(provider_id);
 
 -- RLS: Never expose commission_rate
-create view public.quotes_safe as
+create or replace view public.quotes_safe as
   select id, lead_id, provider_id, event_type, client_display_amount_inr,
          services_description, valid_until, status, created_at
   from quotes;
@@ -187,10 +187,10 @@ create table if not exists bookings (
   updated_at timestamptz not null default now()
 );
 
-create index idx_bookings_provider_id on bookings(provider_id);
-create index idx_bookings_client_id on bookings(client_id);
-create index idx_bookings_status on bookings(status);
-create index idx_bookings_event_date on bookings(event_date);
+create index if not exists idx_bookings_provider_id on bookings(provider_id);
+create index if not exists idx_bookings_client_id on bookings(client_id);
+create index if not exists idx_bookings_status on bookings(status);
+create index if not exists idx_bookings_event_date on bookings(event_date);
 
 -- ============================================================
 -- INSTANT GIGS
@@ -214,7 +214,7 @@ create table if not exists instant_gigs (
   created_at timestamptz not null default now()
 );
 
-create index idx_instant_gigs_status on instant_gigs(status);
+create index if not exists idx_instant_gigs_status on instant_gigs(status);
 
 -- ============================================================
 -- MESSAGES
@@ -229,7 +229,7 @@ create table if not exists messages (
   created_at timestamptz not null default now()
 );
 
-create index idx_messages_lead_id on messages(lead_id);
+create index if not exists idx_messages_lead_id on messages(lead_id);
 
 -- ============================================================
 -- REVIEWS
@@ -247,7 +247,7 @@ create table if not exists reviews (
   created_at timestamptz not null default now()
 );
 
-create index idx_reviews_provider_id on reviews(provider_id);
+create index if not exists idx_reviews_provider_id on reviews(provider_id);
 
 -- ============================================================
 -- CALENDAR EVENTS
@@ -266,7 +266,7 @@ create table if not exists calendar_events (
   created_at timestamptz not null default now()
 );
 
-create index idx_calendar_events_provider_id on calendar_events(provider_id);
+create index if not exists idx_calendar_events_provider_id on calendar_events(provider_id);
 
 -- ============================================================
 -- CANCELLATION POLICIES
@@ -335,13 +335,13 @@ begin
 end;
 $$ language plpgsql;
 
-create trigger update_providers_updated_at before update on providers
+create or replace trigger update_providers_updated_at before update on providers
   for each row execute function update_updated_at_column();
 
-create trigger update_bookings_updated_at before update on bookings
+create or replace trigger update_bookings_updated_at before update on bookings
   for each row execute function update_updated_at_column();
 
-create trigger update_leads_updated_at before update on leads
+create or replace trigger update_leads_updated_at before update on leads
   for each row execute function update_updated_at_column();
 
 -- Recalculate avg_rating after review changes
@@ -377,13 +377,13 @@ begin
 end;
 $$ language plpgsql;
 
-create trigger reviews_after_insert after insert on reviews
+create or replace trigger reviews_after_insert after insert on reviews
   for each row execute function recalculate_provider_rating();
 
-create trigger reviews_after_update after update on reviews
+create or replace trigger reviews_after_update after update on reviews
   for each row execute function recalculate_provider_rating();
 
-create trigger reviews_after_delete after delete on reviews
+create or replace trigger reviews_after_delete after delete on reviews
   for each row execute function recalculate_provider_rating();
 
 -- Auto-create profile on auth.users insert
@@ -402,7 +402,7 @@ begin
 end;
 $$ language plpgsql security definer;
 
-create trigger on_auth_user_created after insert on auth.users
+create or replace trigger on_auth_user_created after insert on auth.users
   for each row execute function handle_new_user();
 
 -- ============================================================
