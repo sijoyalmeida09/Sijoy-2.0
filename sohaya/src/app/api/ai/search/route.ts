@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic'
+
 import { NextRequest, NextResponse } from 'next/server'
 import { parseSearchQuery, assemblePalette } from '@/lib/groq'
 import { createClient } from '@/lib/supabase/server'

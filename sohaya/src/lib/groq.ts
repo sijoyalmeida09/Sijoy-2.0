@@ -6,10 +6,16 @@
 import OpenAI from 'openai'
 import { AISearchResponse, ChatMessage, PaletteSuggestion } from '@/types'
 
-export const groq = new OpenAI({
-  apiKey: process.env.GROQ_API_KEY!,
-  baseURL: 'https://api.groq.com/openai/v1',
-})
+// Lazy-initialized to avoid module-level errors during Next.js build
+let _groq: OpenAI | null = null
+export function getGroq(): OpenAI {
+  if (!_groq) {
+    _groq = new OpenAI({ apiKey: process.env.GROQ_API_KEY!, baseURL: 'https://api.groq.com/openai/v1' })
+  }
+  return _groq
+}
+/** @deprecated use getGroq() */
+export const groq = new Proxy({} as OpenAI, { get: (_, prop) => getGroq()[prop as keyof OpenAI] })
 
 export const GROQ_MODEL = 'llama-3.3-70b-versatile'
 export const GROQ_FAST_MODEL = 'llama-3.1-8b-instant' // for cheap/fast calls

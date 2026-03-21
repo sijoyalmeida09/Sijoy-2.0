@@ -1,11 +1,8 @@
+export const dynamic = 'force-dynamic'
+
 import { NextRequest } from 'next/server'
 import OpenAI from 'openai'
 import { ChatMessage } from '@/types'
-
-const groq = new OpenAI({
-  apiKey: process.env.GROQ_API_KEY!,
-  baseURL: 'https://api.groq.com/openai/v1',
-})
 
 const SYSTEM_PROMPT = `You are Sohaya Concierge, a warm and knowledgeable Vasaikar entertainment expert.
 You help clients find perfect artists for weddings, ceremonies, corporate events, and celebrations — starting from Vasai and Maharashtra.
@@ -21,6 +18,7 @@ export async function POST(req: NextRequest) {
 
     const systemContent = context ? `${SYSTEM_PROMPT}\n\nContext: ${context}` : SYSTEM_PROMPT
 
+    const groq = new OpenAI({ apiKey: process.env.GROQ_API_KEY!, baseURL: 'https://api.groq.com/openai/v1' })
     const stream = await groq.chat.completions.create({
       model: 'llama-3.3-70b-versatile',
       max_tokens: 1024,
