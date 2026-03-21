@@ -25,10 +25,10 @@ export default async function LoginPage({
             <Music className="h-8 w-8 text-white" />
           </div>
           <h1 className="text-4xl font-bold text-white mb-4">
-            सोहला में आपका स्वागत है
+            सोहया में आपका स्वागत है
           </h1>
           <p className="text-text-secondary text-lg leading-relaxed">
-            India's most vibrant entertainment marketplace. Book extraordinary artists for your celebration.
+            Vasaikar's celebration marketplace. Book extraordinary artists for your ceremony and events.
           </p>
           <div className="mt-12 grid grid-cols-3 gap-6 text-center">
             {[['500+', 'Artists'], ['50+', 'Cities'], ['4.8★', 'Rating']].map(([val, label]) => (
@@ -49,7 +49,7 @@ export default async function LoginPage({
             <div className="h-10 w-10 bg-gradient-to-br from-accent to-red-700 rounded-xl flex items-center justify-center">
               <Music className="h-5 w-5 text-white" />
             </div>
-            <span className="text-2xl font-bold gradient-text-red">Sohala</span>
+            <span className="text-2xl font-bold gradient-text-red">Sohaya</span>
           </div>
 
           <LoginForm

@@ -133,7 +133,7 @@ export function AIPrompt({ onResults, className }: AIPromptProps) {
             <div className="h-8 w-8 rounded-full bg-accent/20 flex items-center justify-center">
               <Sparkles className="h-4 w-4 text-accent" />
             </div>
-            <span className="text-sm">Sohala is finding perfect artists for you</span>
+            <span className="text-sm">Sohaya is finding perfect artists for you</span>
             <ThinkingDots />
           </motion.div>
         )}

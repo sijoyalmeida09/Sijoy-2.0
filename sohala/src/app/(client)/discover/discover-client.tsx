@@ -48,9 +48,9 @@ export function DiscoverClient({
     { key: 'trending', title: 'Trending in India', icon: '🔥', artists: trending },
     { key: 'live', title: 'Available Tonight', icon: '🟢', artists: liveTonight },
     { key: 'wedding', title: 'Perfect for Weddings', icon: '💍', artists: weddingPicks },
-    { key: 'founders', title: 'Sohala Founders', icon: '⭐', artists: founders },
+    { key: 'founders', title: 'Sohaya Founders', icon: '⭐', artists: founders },
     { key: 'budget', title: 'Budget-Friendly (Under ₹5,000)', icon: '💰', artists: budgetFriendly },
-    { key: 'new', title: 'New on Sohala', icon: '🆕', artists: newest },
+    { key: 'new', title: 'New on Sohaya', icon: '🆕', artists: newest },
   ]
 
   return (
@@ -143,7 +143,7 @@ export function DiscoverClient({
             <div className="bg-gradient-to-r from-purple-950/50 to-indigo-950/50 border border-purple-500/20 rounded-3xl p-6">
               <div className="flex items-center gap-2 mb-4">
                 <Crown className="h-5 w-5 text-purple-300" />
-                <h2 className="font-bold text-white">Sohala Founder Artists</h2>
+                <h2 className="font-bold text-white">Sohaya Founder Artists</h2>
                 <span className="text-xs bg-purple-500/20 text-purple-300 border border-purple-500/30 px-2 py-0.5 rounded-full">
                   Zero Commission
                 </span>

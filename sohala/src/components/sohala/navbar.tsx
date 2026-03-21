@@ -38,7 +38,7 @@ export function Navbar({ user }: { user?: { id: string; email?: string } | null 
             <div className="h-8 w-8 bg-gradient-to-br from-accent to-red-700 rounded-lg flex items-center justify-center">
               <Music className="h-4 w-4 text-white" />
             </div>
-            <span className="text-xl font-bold gradient-text-red">Sohala</span>
+            <span className="text-xl font-bold gradient-text-red">Sohaya</span>
           </Link>
 
           {/* Desktop Nav */}

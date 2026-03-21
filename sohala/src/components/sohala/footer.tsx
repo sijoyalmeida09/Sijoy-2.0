@@ -39,10 +39,10 @@ export function Footer() {
               <div className="h-8 w-8 bg-gradient-to-br from-accent to-red-700 rounded-lg flex items-center justify-center">
                 <Music className="h-4 w-4 text-white" />
               </div>
-              <span className="font-bold text-lg gradient-text-red">Sohala</span>
+              <span className="font-bold text-lg gradient-text-red">Sohaya</span>
             </Link>
             <p className="text-text-muted text-sm leading-relaxed mb-4">
-              India's premier entertainment marketplace. Connecting celebrations with extraordinary performers.
+              Vasaikar's celebration marketplace. Connecting your ceremony with extraordinary artists.
             </p>
             <div className="flex gap-3">
               <a href="#" className="h-8 w-8 rounded-lg bg-white/5 flex items-center justify-center hover:bg-white/10 transition-colors">
@@ -80,7 +80,7 @@ export function Footer() {
         {/* Bottom bar */}
         <div className="mt-12 pt-8 border-t border-white/5 flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="text-text-muted text-sm">
-            © 2026 Sohala Entertainment Pvt. Ltd. All rights reserved.
+            © 2026 Sohaya Entertainment Pvt. Ltd. All rights reserved.
           </p>
           <div className="flex items-center gap-2 text-text-muted text-sm">
             <span>Made with ❤️ in India</span>

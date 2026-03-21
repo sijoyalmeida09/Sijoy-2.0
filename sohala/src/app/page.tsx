@@ -91,18 +91,18 @@ export default async function HomePage() {
           <div className="inline-flex items-center gap-2 bg-accent/10 border border-accent/20 rounded-full px-4 py-1.5 mb-6">
             <span className="h-2 w-2 rounded-full bg-accent-green animate-pulse" />
             <span className="text-sm text-text-secondary">
-              India's Premier Entertainment Marketplace
+              Vasaikar's Celebration Marketplace
             </span>
           </div>
 
           {/* Headline */}
           <h1 className="heading-hero text-white mb-6">
-            Your Celebration,{' '}
-            <span className="gradient-text-red">Perfectly Performed</span>
+            Celebrate{' '}
+            <span className="gradient-text-red">Like We Do</span>
           </h1>
           <p className="text-text-secondary text-lg sm:text-xl max-w-2xl mx-auto mb-12 leading-relaxed">
-            Book verified artists for weddings, corporate events, and restaurants across India.
-            AI-powered matching in seconds.
+            Vasaikar's marketplace for artists, ceremonies, and celebrations.
+            Book verified performers — AI-matched in seconds.
           </p>
 
           {/* DUAL ENTRY POINT */}
@@ -162,9 +162,9 @@ export default async function HomePage() {
       {/* Features */}
       <section className="max-w-7xl mx-auto px-4 py-20">
         <div className="text-center mb-12">
-          <h2 className="heading-section text-white mb-4">Why Sohala?</h2>
+          <h2 className="heading-section text-white mb-4">Why Sohaya?</h2>
           <p className="text-text-secondary max-w-xl mx-auto">
-            We've reimagined how India books entertainment — faster, smarter, more joyful.
+            Built for Vasaikar celebrations — rooted in our community, powered by AI.
           </p>
         </div>
         <div className="grid md:grid-cols-3 gap-6">
@@ -189,7 +189,7 @@ export default async function HomePage() {
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-xl font-bold text-white flex items-center gap-2">
               <Star className="h-5 w-5 text-accent-gold" />
-              Top Artists on Sohala
+              Top Artists on Sohaya
             </h2>
             <Link href="/discover" className="text-sm text-accent hover:underline flex items-center gap-1">
               See all <ArrowRight className="h-3.5 w-3.5" />
@@ -246,14 +246,14 @@ export default async function HomePage() {
       {/* How it Works */}
       <section id="how-it-works" className="max-w-7xl mx-auto px-4 py-20">
         <div className="text-center mb-12">
-          <h2 className="heading-section text-white mb-4">How Sohala Works</h2>
+          <h2 className="heading-section text-white mb-4">How Sohaya Works</h2>
         </div>
         <div className="grid md:grid-cols-4 gap-6">
           {[
             { step: '01', icon: Sparkles, title: 'Describe Your Event', desc: 'Tell our AI about your celebration — venue, vibe, budget' },
             { step: '02', icon: Music, title: 'Get Matched', desc: 'AI finds perfect artists within seconds' },
             { step: '03', icon: Mic2, title: 'Review & Book', desc: 'Compare quotes, check reviews, confirm' },
-            { step: '04', icon: Award, title: 'Celebrate!', desc: 'Sit back while Sohala handles the rest' },
+            { step: '04', icon: Award, title: 'Celebrate!', desc: 'Sit back while Sohaya handles the rest' },
           ].map(({ step, icon: Icon, title, desc }) => (
             <div key={step} className="text-center">
               <div className="relative inline-flex items-center justify-center h-16 w-16 rounded-full bg-card border border-white/10 mb-4 mx-auto">
@@ -276,7 +276,7 @@ export default async function HomePage() {
             Ready to make your celebration unforgettable?
           </h2>
           <p className="text-text-secondary mb-8">
-            Join 10,000+ happy clients who booked extraordinary artists through Sohala.
+            Join the Vasaikar community — book extraordinary artists through Sohaya.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link href="/discover">

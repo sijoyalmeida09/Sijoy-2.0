@@ -26,10 +26,10 @@ const EVENT_TYPES = [
 ]
 
 const UPI_ID = process.env.NEXT_PUBLIC_UPI_ID ?? 'sijoyalmeida-1@oksbi'
-const UPI_NAME = process.env.NEXT_PUBLIC_UPI_NAME ?? 'Sohala'
+const UPI_NAME = process.env.NEXT_PUBLIC_UPI_NAME ?? 'Sohaya'
 
 function buildUpiString(amount: number, ref: string) {
-  return `upi://pay?pa=${UPI_ID}&pn=${encodeURIComponent(UPI_NAME)}&am=${amount}&cu=INR&tn=${encodeURIComponent('Sohala Booking ' + ref)}`
+  return `upi://pay?pa=${UPI_ID}&pn=${encodeURIComponent(UPI_NAME)}&am=${amount}&cu=INR&tn=${encodeURIComponent('Sohaya Booking ' + ref)}`
 }
 
 function UpiPaymentStep({
@@ -440,7 +440,7 @@ export default function BookPage() {
                   <div className="flex items-center gap-2 p-3 bg-accent-green/10 border border-accent-green/20 rounded-xl">
                     <Sparkles className="h-4 w-4 text-accent-green flex-shrink-0" />
                     <p className="text-xs text-accent-green">
-                      Your booking is secured by Sohala's guarantee. Pay only after you're satisfied.
+                      Your booking is secured by Sohaya's guarantee. Pay only after you're satisfied.
                     </p>
                   </div>
                 </div>

@@ -2,20 +2,20 @@ import type { Metadata } from 'next'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'Sohala — India\'s Premier Entertainment Marketplace',
+  title: 'Sohaya — Celebrate Like We Do',
   description:
-    'Book verified artists, bands, DJs, speakers and event services for weddings, corporate events, and restaurants across India. Powered by AI.',
+    'Vasaikar\'s celebration marketplace. Book verified artists, bands, DJs and performers for weddings, ceremonies, and celebrations across Vasai and Maharashtra.',
   keywords: [
-    'book artists india',
-    'wedding entertainment',
-    'corporate events india',
+    'vasaikar entertainment',
+    'vasai wedding artists',
+    'celebration marketplace',
+    'book artists vasai',
     'bollywood band booking',
-    'event entertainment marketplace',
-    'sohala',
+    'sohaya',
   ],
   openGraph: {
-    title: 'Sohala — Your Celebration, Perfectly Performed',
-    description: 'India\'s AI-powered entertainment marketplace',
+    title: 'Sohaya — Your Ceremony, Your Way',
+    description: 'Vasaikar\'s AI-powered celebration marketplace',
     type: 'website',
   },
 }

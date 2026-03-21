@@ -56,7 +56,7 @@ export default async function AdminPage() {
               <Shield className="h-6 w-6 text-accent" />
               Admin Dashboard
             </h1>
-            <p className="text-text-muted text-sm mt-1">Sohala Platform Management</p>
+            <p className="text-text-muted text-sm mt-1">Sohaya Platform Management</p>
           </div>
         </div>
 

@@ -50,7 +50,7 @@ export async function POST(req: NextRequest) {
           response_format: { type: 'json_object' },
           messages: [{
             role: 'system',
-            content: 'You are Sohala\'s search engine for an Indian entertainment marketplace. Always respond with valid JSON only.',
+            content: 'You are Sohaya\'s search engine for a Vasaikar celebration marketplace. Always respond with valid JSON only.',
           }, {
             role: 'user',
             content: `Parse this event request into JSON.
@@ -171,7 +171,7 @@ Return JSON with these keys:
           temperature: 0.7,
           messages: [{
             role: 'system',
-            content: 'You are Sohala, a warm Indian entertainment marketplace. Write brief, celebratory messages.',
+            content: 'You are Sohaya, a warm Vasaikar celebration marketplace. Write brief, celebratory messages.',
           }, {
             role: 'user',
             content: `Write a warm 1-2 sentence message for a user who searched: "${query}".

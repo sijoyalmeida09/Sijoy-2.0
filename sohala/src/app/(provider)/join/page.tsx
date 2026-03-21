@@ -157,7 +157,7 @@ export default function ProviderJoinPage() {
     // Step 0: Basic Info
     <div key="basic" className="space-y-6">
       <div>
-        <h2 className="text-2xl font-bold text-white mb-1">Welcome to Sohala</h2>
+        <h2 className="text-2xl font-bold text-white mb-1">Welcome to Sohaya</h2>
         <p className="text-text-muted">Let's set up your artist profile</p>
       </div>
       <div>

@@ -46,7 +46,7 @@ export function PageLoader() {
   return (
     <div className="min-h-screen bg-primary flex items-center justify-center">
       <div className="flex flex-col items-center gap-4">
-        <div className="text-2xl font-bold gradient-text-red">Sohala</div>
+        <div className="text-2xl font-bold gradient-text-red">Sohaya</div>
         <Spinner className="h-8 w-8" />
         <p className="text-text-muted text-sm">Loading your celebration...</p>
       </div>

@@ -151,7 +151,7 @@ export function LoginForm({ redirectTo = '/discover', defaultTab = 'client' }: L
           {formMode === 'signup' ? 'Create your account' : 'Welcome back'}
         </h2>
         <p className="text-text-muted text-sm">
-          {formMode === 'signup' ? 'Join Sohala — it\'s free' : 'Sign in to your Sohala account'}
+          {formMode === 'signup' ? 'Join Sohaya — it\'s free' : 'Sign in to your Sohaya account'}
         </p>
       </div>
 

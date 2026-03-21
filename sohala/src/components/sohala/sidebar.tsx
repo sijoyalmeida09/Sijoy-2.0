@@ -46,7 +46,7 @@ export function ProviderSidebar() {
           <div className="h-8 w-8 bg-gradient-to-br from-accent to-red-700 rounded-lg flex items-center justify-center">
             <Music className="h-4 w-4 text-white" />
           </div>
-          <span className="font-bold text-lg gradient-text-red">Sohala</span>
+          <span className="font-bold text-lg gradient-text-red">Sohaya</span>
         </Link>
         <p className="text-xs text-text-muted mt-1">Artist Portal</p>
       </div>

@@ -1,8 +1,35 @@
--- Sohala Seed Data: 50 Diverse Indian Artists
+-- Sohaya Seed Data: 50 Diverse Indian Artists
 -- photo_urls use DiceBear fun-emoji avatars as placeholders
 -- Run after migrations: paste into Supabase SQL editor
+-- Execution order: auth.users → profiles → providers
 
--- ── 1. Profiles ────────────────────────────────────────────────────────────
+-- ── 0. pgcrypto (required for crypt()) ──────────────────────────────────────
+create extension if not exists pgcrypto;
+
+-- ── 1. auth.users — must exist before profiles (FK constraint) ──────────────
+insert into auth.users (
+  id,
+  email,
+  encrypted_password,
+  email_confirmed_at,
+  created_at,
+  updated_at,
+  raw_user_meta_data,
+  role,
+  aud
+)
+select
+  ('11111111-1111-1111-1111-1111111111' || lpad(gs::text, 2, '0'))::uuid,
+  'artist_seed_' || gs || '@sohaya.app',
+  crypt('SeedPassword123!', gen_salt('bf')),
+  now(), now(), now(),
+  jsonb_build_object('full_name', 'Seed Artist ' || gs, 'role', 'provider'),
+  'authenticated',
+  'authenticated'
+from generate_series(1, 50) as gs
+on conflict (id) do nothing;
+
+-- ── 2. Profiles ─────────────────────────────────────────────────────────────
 do $$
 declare
   profile_ids uuid[] := array[

@@ -224,18 +224,18 @@ export function LivingCanvas() {
                 className="text-center mb-6"
               >
                 <motion.div className="flex items-center justify-center gap-2 mb-2">
-                  <Sparkles className="w-5 h-5 text-[#E50914]" />
-                  <span className="text-sm text-[#B3B3B3] font-medium tracking-widest uppercase">
-                    Sohala AI Concierge
+                  <Sparkles className="w-5 h-5 text-accent" />
+                  <span className="text-sm text-text-secondary font-medium tracking-widest uppercase">
+                    Sohaya AI Concierge
                   </span>
                 </motion.div>
                 <h1 className="text-3xl md:text-4xl font-bold">
                   Describe your{' '}
-                  <span className="bg-gradient-to-r from-[#E50914] to-[#FF6B35] bg-clip-text text-transparent">
+                  <span className="bg-gradient-to-r from-accent to-accent-light bg-clip-text text-transparent">
                     celebration
                   </span>
                 </h1>
-                <p className="text-[#666] mt-2 text-sm">
+                <p className="text-text-muted mt-2 text-sm">
                   The page will transform around your needs in real time
                 </p>
               </motion.div>
@@ -245,18 +245,18 @@ export function LivingCanvas() {
           {/* Search Input */}
           <div className="relative flex gap-2">
             <div className="relative flex-1">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#666]" />
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-text-muted" />
               <input
                 value={inputValue}
                 onChange={e => setInputValue(e.target.value)}
                 onKeyDown={handleKeyDown}
                 placeholder="e.g. Sangeet for 150 guests in Mumbai, budget ₹80,000..."
-                className="w-full bg-[#1A1A1A] border border-white/10 rounded-xl pl-12 pr-4 py-4 text-white placeholder:text-[#444] focus:outline-none focus:border-[#E50914]/50 focus:ring-1 focus:ring-[#E50914]/20 text-base transition-all"
+                className="w-full bg-surface border border-white/10 rounded-xl pl-12 pr-4 py-4 text-white placeholder:text-text-muted focus:outline-none focus:border-accent/50 focus:ring-1 focus:ring-accent/20 text-base transition-all"
                 disabled={isSearching}
               />
               {isSearching && (
                 <motion.div
-                  className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 rounded-full border-2 border-[#E50914] border-t-transparent"
+                  className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 rounded-full border-2 border-accent border-t-transparent"
                   animate={{ rotate: 360 }}
                   transition={{ duration: 0.8, repeat: Infinity, ease: 'linear' }}
                 />
@@ -268,7 +268,7 @@ export function LivingCanvas() {
               value={budget}
               onChange={e => setBudget(e.target.value.replace(/\D/g, ''))}
               placeholder="Budget ₹"
-              className="w-28 bg-[#1A1A1A] border border-white/10 rounded-xl px-3 py-4 text-white placeholder:text-[#444] focus:outline-none focus:border-[#E50914]/50 text-sm"
+              className="w-28 bg-surface border border-white/10 rounded-xl px-3 py-4 text-white placeholder:text-text-muted focus:outline-none focus:border-accent/50 text-sm"
               disabled={isSearching}
             />
 
@@ -277,7 +277,7 @@ export function LivingCanvas() {
               disabled={isSearching || !inputValue.trim()}
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.97 }}
-              className="bg-gradient-to-r from-[#E50914] to-[#C2000F] text-white px-6 py-4 rounded-xl font-semibold disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 whitespace-nowrap"
+              className="bg-gradient-to-r from-accent to-red-700 text-white px-6 py-4 rounded-xl font-semibold disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 whitespace-nowrap"
             >
               <Zap className="w-4 h-4" />
               {isSearching ? 'Working...' : 'Find Artists'}
@@ -294,7 +294,7 @@ export function LivingCanvas() {
                 }}
                 className="w-12 h-14 flex items-center justify-center bg-white/5 rounded-xl hover:bg-white/10 transition-colors"
               >
-                <X className="w-4 h-4 text-[#B3B3B3]" />
+                <X className="w-4 h-4 text-text-secondary" />
               </motion.button>
             )}
           </div>
@@ -324,7 +324,7 @@ export function LivingCanvas() {
             transition={{ duration: 0.3 }}
             className="max-w-5xl mx-auto px-4 py-12"
           >
-            <p className="text-center text-[#666] mb-8 text-sm">— or browse by category —</p>
+            <p className="text-center text-text-muted mb-8 text-sm">— or browse by category —</p>
             <CategoryGrid
               onSelect={(cat) => {
                 setInputValue(`Show me ${cat} artists`)
@@ -373,9 +373,9 @@ export function LivingCanvas() {
                     layout
                     initial={{ opacity: 0, scale: 0.97 }}
                     animate={{ opacity: 1, scale: 1 }}
-                    className="bg-gradient-to-r from-[#E50914]/10 to-[#FF6B35]/5 border border-[#E50914]/20 rounded-xl p-4 mb-6 flex items-start gap-3"
+                    className="bg-gradient-to-r from-accent/10 to-accent-light/5 border border-accent/20 rounded-xl p-4 mb-6 flex items-start gap-3"
                   >
-                    <Sparkles className="w-5 h-5 text-[#E50914] mt-0.5 flex-shrink-0" />
+                    <Sparkles className="w-5 h-5 text-accent mt-0.5 flex-shrink-0" />
                     <p className="text-[#E8E8E8] leading-relaxed">{state.summary}</p>
                   </motion.div>
                 )}
@@ -393,7 +393,7 @@ export function LivingCanvas() {
                     <div className="flex items-center gap-2 mb-4">
                       <span className="text-lg">🎁</span>
                       <h2 className="text-xl font-bold">Curated Packages</h2>
-                      <span className="text-xs bg-[#E50914]/20 text-[#E50914] px-2 py-0.5 rounded-full font-medium">
+                      <span className="text-xs bg-accent/20 text-accent px-2 py-0.5 rounded-full font-medium">
                         Save up to 5%
                       </span>
                     </div>
@@ -436,7 +436,7 @@ export function LivingCanvas() {
                         key={i}
                         animate={{ opacity: [0.3, 0.7, 0.3] }}
                         transition={{ duration: 1.5, repeat: Infinity, delay: i * 0.3 }}
-                        className="h-48 bg-[#1A1A1A] rounded-2xl border border-white/5"
+                        className="h-48 bg-surface rounded-2xl border border-white/5"
                       />
                     ))}
                   </motion.div>
@@ -449,21 +449,21 @@ export function LivingCanvas() {
                   <motion.section layout>
                     <div className="flex items-center justify-between mb-4">
                       <div className="flex items-center gap-2">
-                        <Users className="w-5 h-5 text-[#B3B3B3]" />
+                        <Users className="w-5 h-5 text-text-secondary" />
                         <h2 className="text-xl font-bold">
                           {state.stats
                             ? `${state.stats.artists_found} Artists`
                             : `${state.artists.length} Artists`}
                         </h2>
                         {state.artists.filter((a: any) => a.is_online).length > 0 && (
-                          <span className="flex items-center gap-1 text-xs bg-[#00C853]/20 text-[#00C853] px-2 py-0.5 rounded-full">
-                            <span className="w-1.5 h-1.5 rounded-full bg-[#00C853] animate-pulse" />
+                          <span className="flex items-center gap-1 text-xs bg-accent-green/20 text-accent-green px-2 py-0.5 rounded-full">
+                            <span className="w-1.5 h-1.5 rounded-full bg-accent-green animate-pulse" />
                             {state.artists.filter((a: any) => a.is_online).length} Live Now
                           </span>
                         )}
                       </div>
                       {state.stats && budget && (
-                        <span className="text-sm text-[#B3B3B3]">
+                        <span className="text-sm text-text-secondary">
                           {state.stats.within_budget} within your budget
                         </span>
                       )}
@@ -502,13 +502,13 @@ export function LivingCanvas() {
                             >
                               {artist.is_online && (
                                 <motion.div
-                                  className="absolute -top-1 -right-1 z-10 w-3 h-3 rounded-full bg-[#00C853]"
+                                  className="absolute -top-1 -right-1 z-10 w-3 h-3 rounded-full bg-accent-green"
                                   animate={{ scale: [1, 1.4, 1] }}
                                   transition={{ duration: 2, repeat: Infinity }}
                                 />
                               )}
                               {isOverBudget && (
-                                <div className="absolute top-2 left-2 z-10 text-xs bg-black/80 text-[#B3B3B3] px-2 py-0.5 rounded">
+                                <div className="absolute top-2 left-2 z-10 text-xs bg-black/80 text-text-secondary px-2 py-0.5 rounded">
                                   Over budget
                                 </div>
                               )}
@@ -536,7 +536,7 @@ export function LivingCanvas() {
                         key={i}
                         animate={{ opacity: [0.2, 0.5, 0.2] }}
                         transition={{ duration: 1.2, repeat: Infinity, delay: i * 0.1 }}
-                        className="aspect-[3/4] bg-[#1A1A1A] rounded-xl"
+                        className="aspect-[3/4] bg-surface rounded-xl"
                       />
                     ))}
                   </motion.div>

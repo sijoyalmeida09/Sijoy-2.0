@@ -1,4 +1,4 @@
--- Sohala Entertainment Marketplace
+-- Sohaya Entertainment Marketplace
 -- Initial Database Schema
 
 -- Enable required extensions
@@ -554,7 +554,7 @@ insert into categories (slug, name, name_hi, parent_id, icon, sort_order) values
   ('comedian', 'Comedian', 'हास्य कलाकार', 'entertainer', '😄', 2),
   ('dhol', 'Dhol Player', 'ढोल वादक', 'entertainer', '🥁', 3),
   ('fire-performer', 'Fire Performer', 'अग्नि कलाकार', 'entertainer', '🔥', 4),
-  ('childrens-act', "Children's Act", 'बच्चों का मनोरंजन', 'entertainer', '🎪', 5),
+  ('childrens-act', 'Children''s Act', 'बच्चों का मनोरंजन', 'entertainer', '🎪', 5),
   -- Speakers subcategories
   ('corporate-speaker', 'Corporate Speaker', 'कॉर्पोरेट वक्ता', 'speakers', '💼', 1),
   ('motivational', 'Motivational Speaker', 'प्रेरणादायक वक्ता', 'speakers', '💪', 2),
