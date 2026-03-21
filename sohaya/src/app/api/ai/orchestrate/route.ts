@@ -5,10 +5,12 @@ import OpenAI from 'openai'
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 
-const groq = new OpenAI({
-  apiKey: process.env.GROQ_API_KEY!,
-  baseURL: 'https://api.groq.com/openai/v1',
-})
+function getGroq() {
+  return new OpenAI({
+    apiKey: process.env.GROQ_API_KEY!,
+    baseURL: 'https://api.groq.com/openai/v1',
+  })
+}
 
 export const runtime = 'nodejs'
 
@@ -45,6 +47,7 @@ export async function POST(req: NextRequest) {
         // Step 1: Parse intent
         emit(controller, { type: 'parsing', message: 'Understanding your celebration...' })
 
+        const groq = getGroq()
         const parseResponse = await groq.chat.completions.create({
           model: 'llama-3.3-70b-versatile',
           max_tokens: 512,

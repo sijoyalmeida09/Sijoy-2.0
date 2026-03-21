@@ -50,7 +50,7 @@ export async function POST(req: NextRequest) {
         .eq('id', provider.id)
         .single()
 
-      await supabase.channel('gig_feed_events').send({
+      supabase.channel('gig_feed_events').send({
         type: 'broadcast',
         event: 'provider_online',
         payload: {
@@ -58,7 +58,7 @@ export async function POST(req: NextRequest) {
           ...fullProvider,
           location: lat && lng ? { lat, lng } : null,
         },
-      })
+      }).catch(() => { /* realtime is best-effort */ })
     }
 
     return NextResponse.json({ success: true, is_online })

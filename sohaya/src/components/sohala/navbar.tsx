@@ -7,7 +7,7 @@ import { Music, Menu, X, User, LogOut } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { createClient } from '@/lib/supabase/client'
 
-export function Navbar({ user }: { user?: { id: string; email?: string } | null }) {
+export function Navbar({ user, userRole }: { user?: { id: string; email?: string } | null; userRole?: string | null }) {
   const [scrolled, setScrolled] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
   const router = useRouter()
@@ -74,10 +74,10 @@ export function Navbar({ user }: { user?: { id: string; email?: string } | null 
           <div className="hidden md:flex items-center gap-3">
             {user ? (
               <div className="flex items-center gap-3">
-                <Link href="/discover">
+                <Link href={userRole === 'provider' ? '/provider/dashboard' : userRole === 'admin' ? '/admin' : '/discover'}>
                   <Button variant="secondary" size="sm">
                     <User className="h-4 w-4" />
-                    Dashboard
+                    {userRole === 'provider' ? 'My Dashboard' : userRole === 'admin' ? 'Admin' : 'My Bookings'}
                   </Button>
                 </Link>
                 <button
@@ -139,9 +139,14 @@ export function Navbar({ user }: { user?: { id: string; email?: string } | null 
           </Link>
           <div className="flex gap-3 pt-2">
             {user ? (
-              <Button variant="secondary" size="sm" onClick={handleLogout}>
-                Log Out
-              </Button>
+              <div className="flex gap-3">
+                <Link href={userRole === 'provider' ? '/provider/dashboard' : '/discover'} onClick={() => setMobileOpen(false)}>
+                  <Button variant="secondary" size="sm">
+                    {userRole === 'provider' ? 'My Dashboard' : 'My Bookings'}
+                  </Button>
+                </Link>
+                <Button variant="outline" size="sm" onClick={handleLogout}>Log Out</Button>
+              </div>
             ) : (
               <>
                 <Link href="/login" onClick={() => setMobileOpen(false)}>

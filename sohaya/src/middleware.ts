@@ -1,7 +1,7 @@
 import { createServerClient, type CookieOptions } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
-const PROTECTED_PREFIXES = ['/dashboard', '/provider', '/book', '/admin']
+const PROTECTED_PREFIXES = ['/dashboard', '/provider', '/admin']
 const PUBLIC_PATHS = ['/', '/discover', '/login', '/auth']
 
 function isProtected(pathname: string): boolean {

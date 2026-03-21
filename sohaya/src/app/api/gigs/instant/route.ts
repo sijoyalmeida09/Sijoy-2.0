@@ -60,16 +60,12 @@ export async function POST(req: NextRequest) {
 
     if (error || !gig) throw error
 
-    // Broadcast to live providers in radius
-    await supabase.channel('gig_feed_events').send({
+    // Broadcast to live providers (fire-and-forget — never fails the request)
+    supabase.channel('gig_feed_events').send({
       type: 'broadcast',
       event: 'instant_gig',
-      payload: {
-        ...gig,
-        // Don't expose budget to providers, only payout
-        budget_inr: undefined,
-      },
-    })
+      payload: { ...gig, budget_inr: undefined },
+    }).catch(() => { /* realtime is best-effort */ })
 
     return NextResponse.json({ gig_id: gig.id }, { status: 201 })
   } catch (error) {
