@@ -1,12 +1,17 @@
 {
-  "name": "sohala",
+  "name": "sohaya",
   "version": "0.1.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "db:push": "supabase db push --linked",
+    "db:push:url": "supabase db push --db-url",
+    "db:status": "supabase migration list --linked",
+    "db:diff": "supabase db diff --linked",
+    "db:reset": "supabase db reset --linked"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.39.0",
