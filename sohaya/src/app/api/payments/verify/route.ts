@@ -13,15 +13,24 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'booking_id and utr required' }, { status: 400 })
     }
 
+    // Resolve client_id for ownership check
+    const { data: client } = await supabase
+      .from('clients')
+      .select('id')
+      .eq('profile_id', user.id)
+      .single()
+
+    if (!client) return NextResponse.json({ error: 'Client not found' }, { status: 404 })
+
     const { error } = await supabase
       .from('bookings')
       .update({
         status: 'pending_verification',
-        razorpay_payment_id: utr.trim().toUpperCase(), // reusing field to store UTR
+        utr_number: utr.trim().toUpperCase(),
         updated_at: new Date().toISOString(),
       })
       .eq('id', booking_id)
-      .eq('client_id', user.id)
+      .eq('client_id', client.id)
 
     if (error) throw error
 

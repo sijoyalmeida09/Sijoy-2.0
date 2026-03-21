@@ -3,7 +3,7 @@ export type ProviderStatus = 'pending' | 'verified' | 'suspended' | 'rejected'
 export type CommissionTier = 'founder' | 'standard' | 'premium'
 export type BandPromotionTier = 'standard_penalty' | 'basic' | 'featured' | 'spotlight'
 export type SubscriptionTier = 'free' | 'basic' | 'pro' | 'enterprise'
-export type BookingStatus = 'pending' | 'confirmed' | 'completed' | 'cancelled' | 'disputed'
+export type BookingStatus = 'pending' | 'pending_verification' | 'confirmed' | 'completed' | 'cancelled' | 'disputed'
 export type LeadStatus = 'open' | 'matched' | 'quoted' | 'booked' | 'closed'
 export type QuoteStatus = 'pending' | 'accepted' | 'rejected' | 'expired'
 export type InstantGigStatus = 'broadcast' | 'accepted' | 'expired' | 'cancelled'
@@ -131,6 +131,7 @@ export interface Booking {
   total_amount_inr: number
   provider_payout_inr: number
   platform_commission_inr: number
+  utr_number?: string
   razorpay_payment_id?: string
   razorpay_order_id?: string
   status: BookingStatus

@@ -27,6 +27,20 @@ export async function PATCH(
       return NextResponse.json({ error: 'Booking not found' }, { status: 404 })
     }
 
+    // Verify caller is the provider or client on this booking
+    const [{ data: provider }, { data: client }] = await Promise.all([
+      supabase.from('providers').select('id').eq('profile_id', user.id).single(),
+      supabase.from('clients').select('id').eq('profile_id', user.id).single(),
+    ])
+
+    const isOwner =
+      (provider && booking.provider_id === provider.id) ||
+      (client && booking.client_id === client.id)
+
+    if (!isOwner) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    }
+
     const updateData: Record<string, unknown> = {
       status,
       updated_at: new Date().toISOString(),

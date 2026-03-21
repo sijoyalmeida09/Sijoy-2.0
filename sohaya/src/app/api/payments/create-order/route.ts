@@ -13,11 +13,31 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'amount_inr and provider_id required' }, { status: 400 })
     }
 
+    // Get client record (client_id != user.id — it's a separate table)
+    const { data: client } = await supabase
+      .from('clients')
+      .select('id')
+      .eq('profile_id', user.id)
+      .single()
+
+    if (!client) {
+      // Auto-create client record if missing
+      const { data: newClient, error: clientError } = await supabase
+        .from('clients')
+        .insert({ profile_id: user.id })
+        .select('id')
+        .single()
+      if (clientError || !newClient) {
+        return NextResponse.json({ error: 'Failed to resolve client' }, { status: 500 })
+      }
+      Object.assign(client ?? {}, newClient)
+    }
+
     const { data: booking, error } = await supabase
       .from('bookings')
       .insert({
         provider_id,
-        client_id: user.id,
+        client_id: (client as { id: string }).id,
         event_type: event_type ?? 'booking',
         event_date: event_date ?? new Date().toISOString().split('T')[0],
         location: location_text ?? 'TBD',
