@@ -166,6 +166,7 @@ async function runTests() {
 
   // ── 5. Create Lead ───────────────────────────────────────────────────────
   let leadId
+  const artistId = seedIds?.ARTIST_1?.provider_id
   if (clientSession) {
     try {
       const res = await api(clientSession, 'POST', '/api/leads', {
@@ -174,7 +175,7 @@ async function runTests() {
         location_text: 'Vasai, Maharashtra',
         budget_hint_inr: 50000,
         notes: 'Need a bollywood band for sangeet night',
-        categories: ['bollywood-band'],
+        ...(artistId ? { provider_id: artistId } : {}), // direct to ravi so he can quote
       })
       if (res.ok && res.data.lead_id) {
         leadId = res.data.lead_id
@@ -189,7 +190,6 @@ async function runTests() {
 
   // ── 6. Create Booking (direct payment flow) ──────────────────────────────
   let bookingId
-  const artistId = seedIds?.ARTIST_1?.provider_id
   if (clientSession && artistId) {
     try {
       const res = await api(clientSession, 'POST', '/api/payments/create-order', {
