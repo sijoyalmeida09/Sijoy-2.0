@@ -85,22 +85,19 @@ export async function GET(request: Request) {
         .update({ role: user.role, full_name: user.full_name })
         .eq("id", userId);
 
-      // If musician, create provider record
+      // If musician, create artist_profile record
       if (user.role === "musician" && user.provider) {
-        const { error: providerError } = await supabase.from("providers").insert({
-          profile_id: userId,
-          provider_type: "musician",
-          display_name: user.provider.display_name,
+        const { error: providerError } = await supabase.from("artist_profiles").insert({
+          user_id: userId,
+          stage_name: user.provider.display_name,
           bio: user.provider.bio,
-          instruments: user.provider.instruments,
-          specialties: user.provider.specialties,
-          base_rate_inr: user.provider.base_rate_inr,
+          event_rate: user.provider.base_rate_inr,
           region: user.provider.region,
           city: user.provider.city,
           youtube_url: user.provider.youtube_url,
           instagram_url: user.provider.instagram_url,
-          status: user.provider.status,
-          is_online: true
+          featured: true,
+          available: true
         });
 
         if (providerError) {
