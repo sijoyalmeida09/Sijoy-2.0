@@ -6,18 +6,70 @@ import { ClientView } from "@/components/dashboard/views/client-view";
 
 async function getAdminMetrics() {
   const supabase = createServerSupabaseClient();
-  const [{ count: activeUsers }, { data: revenueRows }, { count: highTickets }] = await Promise.all([
+
+  const [
+    { count: activeUsers },
+    { count: totalArtists },
+    { count: pendingVerifications },
+    { count: onlineArtists },
+    { data: allBookings },
+    { data: recentArtists },
+  ] = await Promise.all([
     supabase.from("profiles").select("id", { count: "exact", head: true }),
-    supabase.from("revenue_entries").select("amount"),
+    supabase.from("artist_profiles").select("id", { count: "exact", head: true }),
+    supabase.from("artist_profiles").select("id", { count: "exact", head: true }).eq("verification_status", "pending"),
+    supabase.from("artist_profiles").select("id", { count: "exact", head: true }).eq("is_online", true),
     supabase
-      .from("it_tickets")
-      .select("id", { count: "exact", head: true })
-      .eq("priority", "high")
-      .in("status", ["open", "in_progress"])
+      .from("event_bookings")
+      .select("id, event_name, event_date, status, agreed_amount, artist_payout, platform_revenue, escrow_status, artist_id, organizer_id, artist_profiles(stage_name), profiles!event_bookings_organizer_id_fkey(full_name)")
+      .order("created_at", { ascending: false })
+      .limit(50),
+    supabase
+      .from("artist_profiles")
+      .select("id, stage_name, city, verification_status, total_bookings, avg_rating, is_online")
+      .order("created_at", { ascending: false })
+      .limit(12),
   ]);
 
-  const totalRevenue = (revenueRows ?? []).reduce((sum, row) => sum + Number(row.amount ?? 0), 0);
-  return { activeUsers: activeUsers ?? 0, totalRevenue, highTickets: highTickets ?? 0 };
+  const bookings = (allBookings ?? []).map((b: Record<string, unknown>) => ({
+    id: b.id as string,
+    event_name: (b.event_name as string) || "Untitled",
+    event_date: b.event_date as string,
+    status: b.status as string,
+    agreed_amount: (b.agreed_amount as number) || 0,
+    artist_payout: (b.artist_payout as number) || 0,
+    platform_revenue: (b.platform_revenue as number) || 0,
+    escrow_status: b.escrow_status as string | null,
+    artist_name: (b.artist_profiles as { stage_name: string } | null)?.stage_name || null,
+    organizer_name: (b.profiles as { full_name: string } | null)?.full_name || null,
+  }));
+
+  const gmvTotal = bookings.reduce((s, b) => s + b.agreed_amount, 0);
+  const commissionTotal = bookings.reduce((s, b) => s + b.platform_revenue, 0);
+  const bookingsByStatus: Record<string, number> = {};
+  bookings.forEach((b) => { bookingsByStatus[b.status] = (bookingsByStatus[b.status] || 0) + 1; });
+
+  const artists = (recentArtists ?? []).map((a: Record<string, unknown>) => ({
+    id: a.id as string,
+    stage_name: a.stage_name as string,
+    city: (a.city as string) || "Unknown",
+    verification_status: (a.verification_status as string) || "pending",
+    total_bookings: (a.total_bookings as number) || 0,
+    avg_rating: (a.avg_rating as number) || 0,
+    is_online: (a.is_online as boolean) || false,
+  }));
+
+  return {
+    activeUsers: activeUsers ?? 0,
+    totalArtists: totalArtists ?? 0,
+    pendingVerifications: pendingVerifications ?? 0,
+    onlineArtists: onlineArtists ?? 0,
+    bookings,
+    recentArtists: artists,
+    gmvTotal,
+    commissionTotal,
+    bookingsByStatus,
+  };
 }
 
 async function getMusicianData(userId: string) {
@@ -75,13 +127,20 @@ export default async function DashboardPage() {
   const profile = await requireProfile();
 
   if (profile.role === "admin") {
-    const metrics = await getAdminMetrics();
+    const m = await getAdminMetrics();
     return (
       <AdminView
         profileName={profile.full_name ?? "Admin"}
-        totalRevenue={metrics.totalRevenue}
-        activeUsers={metrics.activeUsers}
-        highPriorityTickets={metrics.highTickets}
+        totalRevenue={m.gmvTotal}
+        activeUsers={m.activeUsers}
+        totalArtists={m.totalArtists}
+        pendingVerifications={m.pendingVerifications}
+        onlineArtists={m.onlineArtists}
+        bookings={m.bookings}
+        recentArtists={m.recentArtists}
+        gmvTotal={m.gmvTotal}
+        commissionTotal={m.commissionTotal}
+        bookingsByStatus={m.bookingsByStatus}
       />
     );
   }
