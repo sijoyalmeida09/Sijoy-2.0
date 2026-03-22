@@ -49,19 +49,31 @@ export async function POST(req: NextRequest) {
       client = newClient
     }
 
-    // Check for duplicate booking (same provider + same date + same client, pending/confirmed)
-    const { data: existing } = await supabase
+    // Block past dates
+    const bookingDate = event_date ?? new Date().toISOString().split('T')[0]
+    if (new Date(bookingDate) < new Date(new Date().toISOString().split('T')[0])) {
+      return NextResponse.json({ error: 'Cannot book for a past date' }, { status: 400 })
+    }
+
+    // Dedup: same client+provider+date+time (overlap trigger handles time conflicts,
+    // this prevents exact duplicate clicks)
+    let dedupQuery = supabase
       .from('bookings')
       .select('id')
       .eq('provider_id', provider_id)
       .eq('client_id', client.id)
-      .eq('event_date', event_date ?? new Date().toISOString().split('T')[0])
+      .eq('event_date', bookingDate)
       .in('status', ['pending', 'pending_verification', 'confirmed'])
-      .limit(1)
+
+    if (event_time) {
+      dedupQuery = dedupQuery.eq('event_time', event_time)
+    }
+
+    const { data: existing } = await dedupQuery.limit(1)
 
     if (existing && existing.length > 0) {
       return NextResponse.json({
-        error: 'A booking for this artist on this date already exists',
+        error: 'A booking for this artist on this date/time already exists',
         existing_booking_id: existing[0].id,
       }, { status: 409 })
     }
@@ -72,7 +84,7 @@ export async function POST(req: NextRequest) {
         provider_id,
         client_id: client.id,
         event_type: event_type ?? 'booking',
-        event_date: event_date ?? new Date().toISOString().split('T')[0],
+        event_date: bookingDate,
         event_time: event_time ?? null,
         duration_hours: duration_hours ?? 3,
         location: location_text ?? 'TBD',
@@ -84,7 +96,14 @@ export async function POST(req: NextRequest) {
       .select()
       .single()
 
-    if (error) throw error
+    if (error) {
+      // Return the actual DB error for debugging (overlap trigger, RLS, etc.)
+      return NextResponse.json({
+        error: error.message || 'Failed to create booking',
+        code: error.code,
+        details: error.details,
+      }, { status: error.code === '23505' || error.code === '23514' ? 409 : 500 })
+    }
 
     return NextResponse.json({
       booking_id: booking.id,
@@ -92,8 +111,12 @@ export async function POST(req: NextRequest) {
       upi_id: process.env.NEXT_PUBLIC_UPI_ID,
       upi_name: process.env.NEXT_PUBLIC_UPI_NAME,
     })
-  } catch (error) {
+  } catch (error: unknown) {
+    const e = error as { message?: string; code?: string; details?: string }
     console.error('Booking creation error:', error)
-    return NextResponse.json({ error: 'Failed to create booking' }, { status: 500 })
+    return NextResponse.json({
+      error: e?.message || 'Failed to create booking',
+      code: e?.code,
+    }, { status: 500 })
   }
 }
