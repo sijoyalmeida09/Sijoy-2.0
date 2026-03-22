@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { Navbar } from '@/components/sohala/navbar'
 import { Footer } from '@/components/sohala/footer'
+import { BottomNav } from '@/components/sohala/bottom-nav'
 
 export default async function ClientLayout({
   children,
@@ -23,8 +24,9 @@ export default async function ClientLayout({
   return (
     <div className="min-h-screen bg-primary">
       <Navbar user={user} userRole={userRole} />
-      <main className="pt-16">{children}</main>
+      <main className="pt-16 pb-16 md:pb-0">{children}</main>
       <Footer />
+      <BottomNav userRole={userRole} />
     </div>
   )
 }
