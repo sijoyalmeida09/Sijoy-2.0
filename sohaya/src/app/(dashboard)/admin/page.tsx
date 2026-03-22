@@ -30,6 +30,7 @@ export default async function AdminPage() {
     { count: totalClients },
     { data: pendingUTR },
     { data: allProviders },
+    { data: allUsers },
   ] = await Promise.all([
     admin.from('providers').select('*').eq('status', 'pending').order('created_at', { ascending: false }).limit(20),
     admin.from('providers').select('id', { count: 'exact', head: true }).eq('is_online', true),
@@ -39,6 +40,7 @@ export default async function AdminPage() {
     admin.from('clients').select('id', { count: 'exact', head: true }),
     admin.from('bookings').select('id, event_type, total_amount_inr, utr_number, created_at, provider:providers(display_name)').eq('status', 'pending_verification').order('created_at', { ascending: false }),
     admin.from('providers').select('id, display_name, status, is_founder, avg_rating, total_gigs, base_rate_inr, city, categories, created_at').order('created_at', { ascending: false }).limit(20),
+    admin.from('profiles').select('id, email, full_name, role, phone, created_at').order('created_at', { ascending: false }).limit(30),
   ])
 
   const bookings = allBookings ?? []
@@ -93,6 +95,27 @@ export default async function AdminPage() {
     const id = formData.get('booking_id') as string
     const adminDb = createAdminClient()
     await adminDb.from('bookings').update({ status: 'cancelled', updated_at: new Date().toISOString() }).eq('id', id)
+    revalidatePath('/admin')
+  }
+
+  async function changeUserRole(formData: FormData) {
+    'use server'
+    const id = formData.get('user_id') as string
+    const role = formData.get('role') as string
+    if (!['client', 'provider', 'admin'].includes(role)) return
+    const adminDb = createAdminClient()
+    await adminDb.from('profiles').update({ role, updated_at: new Date().toISOString() }).eq('id', id)
+    revalidatePath('/admin')
+  }
+
+  async function blockUser(formData: FormData) {
+    'use server'
+    const id = formData.get('user_id') as string
+    const adminDb = createAdminClient()
+    // Suspend all provider records for this user
+    await adminDb.from('providers').update({ status: 'suspended', updated_at: new Date().toISOString() }).eq('profile_id', id)
+    // Change role to blocked (custom status)
+    await adminDb.from('profiles').update({ role: 'blocked', updated_at: new Date().toISOString() }).eq('id', id)
     revalidatePath('/admin')
   }
 
@@ -354,6 +377,65 @@ export default async function AdminPage() {
                       }`}>{p.status}</span>
                     </td>
                     <td className="py-2 px-2 text-center">{p.is_founder ? '★' : '—'}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+        {/* All Users */}
+        <div className="bg-card border border-white/5 rounded-2xl p-5">
+          <h2 className="font-bold text-white mb-4">All Users ({(allUsers ?? []).length})</h2>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-white/10">
+                  <th className="text-left py-2 px-2 text-text-muted text-xs">Name</th>
+                  <th className="text-left py-2 px-2 text-text-muted text-xs">Email</th>
+                  <th className="text-center py-2 px-2 text-text-muted text-xs">Role</th>
+                  <th className="text-center py-2 px-2 text-text-muted text-xs">Joined</th>
+                  <th className="text-center py-2 px-2 text-text-muted text-xs">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {(allUsers ?? []).map((u: any) => (
+                  <tr key={u.id} className="border-b border-white/5 hover:bg-white/[0.02]">
+                    <td className="py-2 px-2 text-white">{u.full_name || '—'}</td>
+                    <td className="py-2 px-2 text-text-secondary text-xs">{u.email || u.phone || '—'}</td>
+                    <td className="py-2 px-2 text-center">
+                      <span className={`inline-block rounded-full px-2 py-0.5 text-xs ${
+                        u.role === 'admin' ? 'bg-purple-500/20 text-purple-300' :
+                        u.role === 'provider' ? 'bg-blue-500/20 text-blue-300' :
+                        u.role === 'blocked' ? 'bg-red-500/20 text-red-400' :
+                        'bg-white/10 text-white'
+                      }`}>{u.role}</span>
+                    </td>
+                    <td className="py-2 px-2 text-center text-text-muted text-xs">{timeAgo(u.created_at)}</td>
+                    <td className="py-2 px-2 text-center">
+                      {u.role !== 'admin' && (
+                        <div className="flex gap-1 justify-center">
+                          {u.role !== 'blocked' ? (
+                            <form action={blockUser}>
+                              <input type="hidden" name="user_id" value={u.id} />
+                              <button className="px-2 py-1 bg-red-500/10 text-red-400 rounded text-xs hover:bg-red-500/20">Block</button>
+                            </form>
+                          ) : (
+                            <form action={changeUserRole}>
+                              <input type="hidden" name="user_id" value={u.id} />
+                              <input type="hidden" name="role" value="client" />
+                              <button className="px-2 py-1 bg-green-500/10 text-green-400 rounded text-xs hover:bg-green-500/20">Unblock</button>
+                            </form>
+                          )}
+                          {u.role === 'client' && (
+                            <form action={changeUserRole}>
+                              <input type="hidden" name="user_id" value={u.id} />
+                              <input type="hidden" name="role" value="provider" />
+                              <button className="px-2 py-1 bg-blue-500/10 text-blue-300 rounded text-xs hover:bg-blue-500/20">→ Artist</button>
+                            </form>
+                          )}
+                        </div>
+                      )}
+                    </td>
                   </tr>
                 ))}
               </tbody>

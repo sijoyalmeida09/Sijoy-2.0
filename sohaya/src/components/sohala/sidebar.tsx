@@ -19,7 +19,8 @@ import { useRouter } from 'next/navigation'
 
 const NAV_ITEMS = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { href: '/leads', label: 'My Leads', icon: Inbox, badge: null },
+  { href: '/leads', label: 'My Leads', icon: Inbox },
+  { href: '/calendar', label: 'Calendar', icon: CalendarDays },
   { href: '/earnings', label: 'Earnings', icon: DollarSign },
   { href: '/profile', label: 'Profile', icon: User },
   { href: '/go-live', label: 'Go Live', icon: Zap, highlight: true },

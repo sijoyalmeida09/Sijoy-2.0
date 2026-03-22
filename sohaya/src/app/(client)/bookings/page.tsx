@@ -94,27 +94,31 @@ export default async function MyBookingsPage() {
 
                       <div className="flex items-center justify-between mt-3">
                         <span className="text-white font-semibold text-sm">{formatCurrency(b.total_amount_inr)}</span>
-                        <div className="flex gap-2">
+                        <div className="flex flex-wrap gap-2">
                           {b.status === 'pending' && (
-                            <Link
-                              href={`/book?provider=${b.provider_id}`}
-                              className="text-xs text-accent hover:underline"
-                            >
-                              Complete Payment
+                            <Link href={`/book?provider=${b.provider_id}`} className="text-xs bg-accent/10 text-accent px-2 py-1 rounded-lg hover:bg-accent/20">
+                              Pay Now
                             </Link>
                           )}
                           {b.status === 'completed' && (
-                            <Link
-                              href={`/artists/${b.provider_id}`}
-                              className="text-xs text-accent hover:underline"
-                            >
-                              Leave Review
+                            <Link href={`/artists/${b.provider_id}`} className="text-xs bg-accent/10 text-accent px-2 py-1 rounded-lg hover:bg-accent/20">
+                              Review
                             </Link>
+                          )}
+                          {['pending', 'pending_verification', 'confirmed'].includes(b.status) && (
+                            <a
+                              href={`https://wa.me/919999999999?text=${encodeURIComponent(`Hi, I have a question about my Sohaya booking (Ref: ${b.id.slice(-8).toUpperCase()}) with ${artist?.display_name} on ${b.event_date}`)}`}
+                              target="_blank"
+                              rel="noopener"
+                              className="text-xs bg-green-500/10 text-green-400 px-2 py-1 rounded-lg hover:bg-green-500/20"
+                            >
+                              WhatsApp
+                            </a>
                           )}
                           {b.utr_number && (
                             <span className="flex items-center gap-1 text-xs text-text-muted">
                               <CreditCard className="h-3 w-3" />
-                              UTR: {b.utr_number}
+                              {b.utr_number}
                             </span>
                           )}
                         </div>
