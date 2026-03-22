@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { Music, Menu, X, User, LogOut } from 'lucide-react'
+import { Music, Menu, X, User, LogOut, Play } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { createClient } from '@/lib/supabase/client'
 
@@ -48,6 +48,13 @@ export function Navbar({ user, userRole }: { user?: { id: string; email?: string
               className="text-text-secondary hover:text-white text-sm font-medium transition-colors"
             >
               Discover
+            </Link>
+            <Link
+              href="/reels"
+              className="text-text-secondary hover:text-white text-sm font-medium transition-colors flex items-center gap-1.5"
+            >
+              <Play className="h-3 w-3 text-accent" />
+              Reels
             </Link>
             <Link
               href="/tonight"
@@ -122,6 +129,14 @@ export function Navbar({ user, userRole }: { user?: { id: string; email?: string
             onClick={() => setMobileOpen(false)}
           >
             Discover
+          </Link>
+          <Link
+            href="/reels"
+            className="flex items-center gap-2 text-text-secondary hover:text-white py-2"
+            onClick={() => setMobileOpen(false)}
+          >
+            <Play className="h-3.5 w-3.5 text-accent" />
+            Reels
           </Link>
           <Link
             href="/tonight"

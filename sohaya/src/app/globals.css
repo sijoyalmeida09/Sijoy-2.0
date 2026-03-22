@@ -4,6 +4,14 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Reels — hide scrollbar */
+.scrollbar-none { -ms-overflow-style: none; scrollbar-width: none; }
+.scrollbar-none::-webkit-scrollbar { display: none; }
+
+/* Safe area insets for notched phones */
+.safe-top { padding-top: env(safe-area-inset-top, 0px); }
+.safe-bottom { padding-bottom: env(safe-area-inset-bottom, 0px); }
+
 /* ============================================================
    SOHAYA — Apple-Grade Minimalistic Design System
    Black & Red: Pure Black + Crimson Red + White Glow
