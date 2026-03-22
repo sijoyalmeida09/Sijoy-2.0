@@ -35,14 +35,28 @@ export default async function ArtistProfilePage({
     .order('created_at', { ascending: false })
     .limit(10)
 
-  const { data: relatedArtists } = await supabase
-    .from('providers')
-    .select('*')
-    .eq('status', 'verified')
-    .neq('id', params.id)
-    .contains('categories', provider.categories?.slice(0, 1) ?? [])
-    .eq('city', provider.city)
-    .limit(6)
+  const [{ data: relatedArtists }, { data: portfolio }, { data: services }] = await Promise.all([
+    supabase
+      .from('providers')
+      .select('*')
+      .eq('status', 'verified')
+      .neq('id', params.id)
+      .contains('categories', provider.categories?.slice(0, 1) ?? [])
+      .eq('city', provider.city)
+      .limit(6),
+    supabase
+      .from('artist_portfolio')
+      .select('*')
+      .eq('provider_id', params.id)
+      .eq('is_public', true)
+      .order('sort_order', { ascending: true }),
+    supabase
+      .from('artist_services')
+      .select('*')
+      .eq('provider_id', params.id)
+      .eq('is_active', true)
+      .order('base_price_inr', { ascending: true }),
+  ])
 
   const p = provider as Provider
   const bio = p.ai_generated_bio || p.bio || 'No bio available.'
@@ -128,6 +142,102 @@ export default async function ArtistProfilePage({
               <h2 className="font-bold text-white mb-3">About</h2>
               <p className="text-text-secondary leading-relaxed">{bio}</p>
             </div>
+
+            {/* Setlist */}
+            {(portfolio ?? []).filter((item: any) => item.item_type === 'setlist_song').length > 0 && (
+              <div className="bg-card border border-white/5 rounded-2xl p-6">
+                <h2 className="font-bold text-white mb-4 flex items-center gap-2">
+                  <Music className="h-5 w-5 text-accent" /> Setlist
+                </h2>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  {(portfolio ?? []).filter((item: any) => item.item_type === 'setlist_song').map((item: any, i: number) => (
+                    <div key={item.id} className="flex items-center gap-3 p-2.5 bg-card-hover rounded-xl">
+                      <span className="text-xs text-text-muted w-5 text-center">{i + 1}</span>
+                      <Music className="h-3.5 w-3.5 text-accent flex-shrink-0" />
+                      <span className="text-sm text-white truncate">{item.title}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Service Packages */}
+            {(services ?? []).length > 0 && (
+              <div className="bg-card border border-white/5 rounded-2xl p-6">
+                <h2 className="font-bold text-white mb-4">Service Packages</h2>
+                <div className="space-y-3">
+                  {(services ?? []).map((svc: any) => (
+                    <div key={svc.id} className="border border-white/10 rounded-xl p-4 hover:border-accent/30 transition-colors">
+                      <div className="flex items-start justify-between">
+                        <div>
+                          <h3 className="font-semibold text-white">{svc.service_name}</h3>
+                          {svc.description && <p className="text-text-muted text-sm mt-1">{svc.description}</p>}
+                          {svc.duration_hours && (
+                            <span className="text-xs text-text-muted mt-1 flex items-center gap-1">
+                              <Clock className="h-3 w-3" /> {svc.duration_hours} hours
+                            </span>
+                          )}
+                          {svc.includes?.length > 0 && (
+                            <div className="flex flex-wrap gap-1 mt-2">
+                              {svc.includes.map((inc: string) => (
+                                <span key={inc} className="text-[10px] bg-accent/10 text-accent px-2 py-0.5 rounded-full">{inc}</span>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                        <div className="text-right flex-shrink-0 ml-4">
+                          <div className="text-lg font-bold text-white">{formatCurrency(svc.base_price_inr)}</div>
+                          <Link href={`/book?provider=${p.id}`}>
+                            <button className="mt-1 text-xs text-accent hover:underline">Book This</button>
+                          </Link>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Achievements & Testimonials */}
+            {(portfolio ?? []).filter((item: any) => ['achievement', 'testimonial'].includes(item.item_type)).length > 0 && (
+              <div className="bg-card border border-white/5 rounded-2xl p-6">
+                <h2 className="font-bold text-white mb-4">Achievements & Testimonials</h2>
+                <div className="space-y-3">
+                  {(portfolio ?? []).filter((item: any) => item.item_type === 'achievement').map((item: any) => (
+                    <div key={item.id} className="flex items-start gap-3 p-3 bg-amber-500/5 border border-amber-500/10 rounded-xl">
+                      <Crown className="h-5 w-5 text-amber-400 flex-shrink-0 mt-0.5" />
+                      <div>
+                        <h4 className="font-semibold text-white text-sm">{item.title}</h4>
+                        {item.description && <p className="text-text-muted text-xs mt-0.5">{item.description}</p>}
+                      </div>
+                    </div>
+                  ))}
+                  {(portfolio ?? []).filter((item: any) => item.item_type === 'testimonial').map((item: any) => (
+                    <div key={item.id} className="p-3 bg-card-hover rounded-xl border-l-2 border-accent">
+                      <p className="text-text-secondary text-sm italic">&ldquo;{item.description}&rdquo;</p>
+                      <p className="text-text-muted text-xs mt-1">&mdash; {item.title}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Portfolio Gallery */}
+            {(portfolio ?? []).filter((item: any) => ['portfolio_image', 'portfolio_video'].includes(item.item_type)).length > 0 && (
+              <div className="bg-card border border-white/5 rounded-2xl p-6">
+                <h2 className="font-bold text-white mb-4">Portfolio</h2>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                  {(portfolio ?? []).filter((item: any) => item.item_type === 'portfolio_image').map((item: any) => (
+                    <div key={item.id} className="aspect-square rounded-xl overflow-hidden relative group">
+                      <Image src={item.media_url || ''} alt={item.title} fill className="object-cover" />
+                      <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-2">
+                        <span className="text-xs text-white">{item.title}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {/* Media Gallery */}
             {(p.photo_urls?.length > 1 || p.audio_urls?.length > 0) && (
