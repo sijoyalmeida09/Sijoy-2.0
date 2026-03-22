@@ -60,6 +60,31 @@ export async function GET(request: Request) {
         .limit(1);
 
       if (existingUsers && existingUsers.length > 0) {
+        // For musicians, ensure artist_profile exists even if user does
+        if (user.role === "musician" && user.provider) {
+          const existingUserId = existingUsers[0].id;
+          const { data: existingProfile } = await supabase
+            .from("artist_profiles")
+            .select("id")
+            .eq("user_id", existingUserId)
+            .limit(1);
+          if (!existingProfile || existingProfile.length === 0) {
+            await supabase.from("artist_profiles").insert({
+              user_id: existingUserId,
+              stage_name: user.provider.display_name,
+              bio: user.provider.bio,
+              event_rate: user.provider.base_rate_inr,
+              region: user.provider.region,
+              city: user.provider.city,
+              youtube_url: user.provider.youtube_url,
+              instagram_url: user.provider.instagram_url,
+              featured: true,
+              available: true
+            });
+            results.push({ email: user.email, status: "artist_profile created" });
+            continue;
+          }
+        }
         results.push({ email: user.email, status: "already exists" });
         continue;
       }
