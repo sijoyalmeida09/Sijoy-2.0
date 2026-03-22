@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { createClient, createAdminClient } from '@/lib/supabase/server'
 
 export async function PATCH(
   req: NextRequest,
@@ -17,7 +17,19 @@ export async function PATCH(
       return NextResponse.json({ error: 'Invalid status' }, { status: 400 })
     }
 
-    const { data: booking } = await supabase
+    // Check if admin
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('role')
+      .eq('id', user.id)
+      .single()
+
+    const isAdmin = profile?.role === 'admin'
+
+    // Admin uses service role to bypass RLS; others use their own session
+    const queryClient = isAdmin ? createAdminClient() : supabase
+
+    const { data: booking } = await queryClient
       .from('bookings')
       .select('*')
       .eq('id', params.id)
@@ -27,18 +39,20 @@ export async function PATCH(
       return NextResponse.json({ error: 'Booking not found' }, { status: 404 })
     }
 
-    // Verify caller is the provider or client on this booking
-    const [{ data: provider }, { data: client }] = await Promise.all([
-      supabase.from('providers').select('id').eq('profile_id', user.id).single(),
-      supabase.from('clients').select('id').eq('profile_id', user.id).single(),
-    ])
+    if (!isAdmin) {
+      // Verify caller is the provider or client on this booking
+      const [{ data: provider }, { data: client }] = await Promise.all([
+        supabase.from('providers').select('id').eq('profile_id', user.id).single(),
+        supabase.from('clients').select('id').eq('profile_id', user.id).single(),
+      ])
 
-    const isOwner =
-      (provider && booking.provider_id === provider.id) ||
-      (client && booking.client_id === client.id)
+      const isOwner =
+        (provider && booking.provider_id === provider.id) ||
+        (client && booking.client_id === client.id)
 
-    if (!isOwner) {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+      if (!isOwner) {
+        return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+      }
     }
 
     const updateData: Record<string, unknown> = {
@@ -48,7 +62,7 @@ export async function PATCH(
 
     if (notes) updateData.notes = notes
 
-    const { error } = await supabase
+    const { error } = await queryClient
       .from('bookings')
       .update(updateData)
       .eq('id', params.id)
