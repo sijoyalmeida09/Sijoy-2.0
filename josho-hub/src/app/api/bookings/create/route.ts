@@ -45,7 +45,10 @@ export async function POST(request: Request) {
   const platformRevenue = Math.round(agreedAmount * (commissionPct / 100));
   const artistPayout = agreedAmount - platformRevenue;
 
-  const { data: booking, error } = await supabase
+  // Use admin client for guest bookings (RLS blocks anon insert with null organizer_id)
+  const insertClient = user ? supabase : createAdminSupabaseClient();
+
+  const { data: booking, error } = await insertClient
     .from("event_bookings")
     .insert({
       organizer_id: user?.id ?? null,
