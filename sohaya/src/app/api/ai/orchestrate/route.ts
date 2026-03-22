@@ -48,33 +48,30 @@ export async function POST(req: NextRequest) {
         emit(controller, { type: 'parsing', message: 'Understanding your celebration...' })
 
         const groq = getGroq()
+        const VALID_CATS = ['bollywood-band','classical-music','folk-music','dj','emcee','folk-dance','dhol-player','ghazal','classical-dance','photographer','comedian','sound-light','corporate-speaker']
         const parseResponse = await groq.chat.completions.create({
           model: 'llama-3.3-70b-versatile',
           max_tokens: 512,
-          temperature: 0.2,
+          temperature: 0.1,
           response_format: { type: 'json_object' },
           messages: [{
             role: 'system',
-            content: 'You are Sohaya\'s search engine for a Vasaikar celebration marketplace. Always respond with valid JSON only.',
+            content: 'You are Sohaya search engine. Parse queries into exact DB filter values. Always valid JSON.',
           }, {
             role: 'user',
-            content: `Parse this event request into JSON.
+            content: `Parse this Indian entertainment query.
 Query: "${query}"
-City hint: "${clientCity || 'unknown'}"
-Budget hint: "${budget || 'unknown'}"
+City hint: "${clientCity || ''}"
+Budget hint: "${budget || ''}"
 
-Return JSON with these keys:
-{
-  "event_type": "wedding|corporate|small_party|restaurant_live|anniversary|birthday",
-  "city": "detected city or null",
-  "state": "Indian state or null",
-  "categories": ["slug1","slug2"],
-  "mood": "romantic|energetic|devotional|fun|professional",
-  "budget_inr": number or null,
-  "summary": "one line description",
-  "palette_types": [["category1","category2","category3"]],
-  "search_tags": ["tag1","tag2"]
-}`,
+CRITICAL — "categories" MUST be from this EXACT list:
+${VALID_CATS.map(c => `"${c}"`).join(', ')}
+
+Mapping: band/orchestra→bollywood-band, DJ→dj, singer/ghazal/sufi→ghazal or classical-music, dancer/kathak/bharatanatyam→classical-dance or folk-dance, dhol/nagada/baraat drums→dhol-player, host/anchor/MC→emcee, comedian/standup→comedian, photographer→photographer, sound/lights→sound-light, speaker→corporate-speaker, classical/raga/sitar→classical-music, folk/rajasthani/marathi→folk-music or folk-dance
+
+Cities: Mumbai, Vasai, Pune, Thane, Navi Mumbai, Bangalore, Delhi, Goa, Hyderabad, Jaipur
+
+Return: {"event_type":"wedding|corporate|small_party|restaurant_live|anniversary|birthday|sangeet|reception","city":null_or_exact_city,"state":null_or_state,"categories":["exact-slugs"],"mood":"romantic|energetic|devotional|fun|professional|festive","budget_inr":number_or_null,"summary":"1 sentence","palette_types":[["cat1","cat2"]],"search_tags":["tag1"]}`,
           }],
         })
 
@@ -92,36 +89,32 @@ Return JSON with these keys:
         emit(controller, { type: 'intent', data: { ...intent, budget_inr: detectedBudget } })
         emit(controller, { type: 'matching', message: `Finding artists${detectedCity ? ` near ${detectedCity}` : ''}...` })
 
-        // Step 2: Query artists from Supabase
-        let artistQuery = supabase
-          .from('providers')
-          .select('*')
-          .eq('status', 'verified')
-          .order('avg_rating', { ascending: false })
-          .limit(40)
+        // Step 2: Query artists — smart progressive search
+        const METRO = ['Mumbai', 'Vasai', 'Thane', 'Navi Mumbai', 'Pune', 'Nashik']
+        const isMetro = detectedCity && METRO.some(c => c.toLowerCase() === detectedCity.toLowerCase())
 
-        if (detectedCity) {
-          artistQuery = artistQuery.ilike('city', `%${detectedCity}%`)
-        }
-        if (detectedBudget) {
-          artistQuery = artistQuery.lte('base_rate_inr', detectedBudget)
-        }
-        if (intent.categories?.length > 0) {
-          // category filter via provider_categories join — simplified
-          artistQuery = artistQuery.limit(40)
+        // Sanitize categories
+        const validCats = (intent.categories || []).filter((c: string) => VALID_CATS.includes(c))
+
+        const queryArtists = async (cats: string[], city: string | null, budget: number | null, expandMetro: boolean) => {
+          let q = supabase.from('providers').select('*').eq('status', 'verified')
+            .order('avg_rating', { ascending: false }).limit(40)
+          if (cats.length > 0) q = q.overlaps('categories', cats)
+          if (city && !expandMetro) q = q.ilike('city', `%${city}%`)
+          else if (city && expandMetro && isMetro) q = q.or(METRO.map(c => `city.ilike.%${c}%`).join(','))
+          if (budget && budget > 0) q = q.lte('base_rate_inr', budget)
+          const { data } = await q
+          return data || []
         }
 
-        const { data: rawArtists } = await artistQuery
-
-        // Fallback: if city filter returns 0, get top artists nationally
-        let artists = rawArtists || []
-        if (artists.length === 0 && detectedCity) {
-          const { data: fallback } = await supabase
-            .from('providers')
-            .select('*')
-            .eq('status', 'verified')
-            .order('avg_rating', { ascending: false })
-            .limit(20)
+        // Progressive: strict → metro → no budget → no city → all
+        let artists = await queryArtists(validCats, detectedCity, detectedBudget, false)
+        if (artists.length < 3 && detectedCity) artists = await queryArtists(validCats, detectedCity, detectedBudget, true)
+        if (artists.length < 3 && detectedBudget) artists = await queryArtists(validCats, detectedCity, null, true)
+        if (artists.length < 3 && validCats.length > 0) artists = await queryArtists(validCats, null, null, false)
+        if (artists.length === 0) {
+          const { data: fallback } = await supabase.from('providers').select('*')
+            .eq('status', 'verified').order('avg_rating', { ascending: false }).limit(20)
           artists = fallback || []
         }
 

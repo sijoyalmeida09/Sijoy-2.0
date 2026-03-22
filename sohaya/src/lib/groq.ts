@@ -20,32 +20,60 @@ export const groq = new Proxy({} as OpenAI, { get: (_, prop) => getGroq()[prop a
 export const GROQ_MODEL = 'llama-3.3-70b-versatile'
 export const GROQ_FAST_MODEL = 'llama-3.1-8b-instant' // for cheap/fast calls
 
-const SOHALA_SYSTEM_PROMPT = `You are Sohaya Concierge, an expert Vasaikar celebration marketplace assistant.
-You help clients find the perfect artists for weddings, ceremonies, corporate events, and celebrations — rooted in Vasai and Maharashtra.
-You understand Vasaikar cultural context deeply — from sangeet and religious ceremonies to corporate award nights, from classical ragas to Bollywood DJs.
-You communicate warmly, knowledgeably, and with enthusiasm for Vasaikar performing arts.
-Always respond in JSON format when asked to parse queries. Never expose commission rates or internal pricing data.`
+const SOHAYA_SYSTEM_PROMPT = `You are Sohaya's search engine for an Indian entertainment booking marketplace.
+You parse user queries to find the right artists. You MUST return category slugs that EXACTLY match these available values.
+Never expose commission rates or internal pricing. Always respond in JSON.`
+
+// Exact DB category slugs — the LLM MUST output ONLY these values
+const VALID_CATEGORIES = [
+  'bollywood-band', 'classical-music', 'folk-music', 'dj', 'emcee',
+  'folk-dance', 'dhol-player', 'ghazal', 'classical-dance',
+  'photographer', 'comedian', 'sound-light', 'corporate-speaker',
+]
+
+// Mumbai metro area cities that are close to each other
+const MUMBAI_METRO = ['Mumbai', 'Vasai', 'Thane', 'Navi Mumbai', 'Pune', 'Nashik']
 
 export async function parseSearchQuery(query: string): Promise<AISearchResponse> {
   const res = await groq.chat.completions.create({
     model: GROQ_MODEL,
     max_tokens: 512,
-    temperature: 0.2,
+    temperature: 0.1,
     response_format: { type: 'json_object' },
     messages: [
-      { role: 'system', content: SOHALA_SYSTEM_PROMPT },
+      { role: 'system', content: SOHAYA_SYSTEM_PROMPT },
       {
         role: 'user',
-        content: `Parse this entertainment search query and return a JSON object with these fields:
-- categories: array of artist/entertainment category slugs (e.g. "bollywood-band", "ghazal", "dj", "classical", "folk", "dancer", "comedian", "dhol", "emcee", "speaker", "sound-light", "photographer")
-- city: city name if mentioned
-- state: state name if mentioned or inferred
-- event_type: one of "wedding", "corporate", "restaurant", "small_party", "anniversary", "birthday", "sangeet", "engagement", "reception"
-- mood: one of "romantic", "energetic", "elegant", "fun", "spiritual", "corporate", "festive"
-- budget_hint: number in INR if mentioned, else null
-- guest_count: number if mentioned, else null
-- language_preference: language if mentioned, else null
-- narrative: a friendly 1-sentence description of what they need
+        content: `Parse this Indian entertainment search query. Return JSON with:
+
+IMPORTANT — "categories" MUST be from this EXACT list (use multiple if relevant):
+${VALID_CATEGORIES.map(c => `"${c}"`).join(', ')}
+
+Mapping guide:
+- "band"/"live band"/"orchestra" → "bollywood-band"
+- "DJ"/"disc jockey"/"EDM" → "dj"
+- "singer"/"vocalist"/"ghazal"/"sufi" → "ghazal" or "folk-music" or "classical-music"
+- "dancer"/"bharatanatyam"/"kathak" → "classical-dance" or "folk-dance"
+- "dhol"/"nagada"/"tasha"/"drums for baraat" → "dhol-player"
+- "host"/"anchor"/"MC"/"emcee" → "emcee"
+- "comedian"/"standup"/"comedy" → "comedian"
+- "photographer"/"videographer"/"photo" → "photographer"
+- "sound"/"lights"/"AV"/"PA system" → "sound-light"
+- "speaker"/"motivational"/"corporate speaker" → "corporate-speaker"
+- "classical"/"raga"/"sitar"/"flute"/"tabla" → "classical-music"
+- "folk"/"rajasthani"/"marathi"/"lavani" → "folk-music" or "folk-dance"
+
+Available cities: Mumbai, Vasai, Pune, Thane, Navi Mumbai, Bangalore, Delhi, Goa, Hyderabad, Jaipur, Lucknow, Nashik, Chennai, Kolkata, Varanasi
+
+Return:
+{
+  "categories": ["exact-slug-from-list"],
+  "city": "exact city name or null",
+  "event_type": "wedding|corporate|restaurant|small_party|anniversary|birthday|sangeet|engagement|reception",
+  "budget_hint": number_in_INR_or_null,
+  "mood": "romantic|energetic|elegant|fun|spiritual|corporate|festive",
+  "narrative": "friendly 1-sentence summary"
+}
 
 Query: "${query}"`,
       },
@@ -54,7 +82,12 @@ Query: "${query}"`,
 
   const text = res.choices[0]?.message?.content || '{}'
   try {
-    return JSON.parse(text)
+    const parsed = JSON.parse(text)
+    // Sanitize: only keep valid categories
+    if (parsed.categories) {
+      parsed.categories = parsed.categories.filter((c: string) => VALID_CATEGORIES.includes(c))
+    }
+    return parsed
   } catch {
     return { categories: [], event_type: 'small_party', mood: 'festive', narrative: query }
   }
@@ -66,7 +99,7 @@ export async function generateBio(bullets: string[], category: string, city: str
     max_tokens: 300,
     temperature: 0.7,
     messages: [
-      { role: 'system', content: SOHALA_SYSTEM_PROMPT },
+      { role: 'system', content: SOHAYA_SYSTEM_PROMPT },
       {
         role: 'user',
         content: `Create a cinematic, compelling artist bio for a ${category} performer based in ${city}.
@@ -92,7 +125,7 @@ export async function suggestPrice(
     temperature: 0.1,
     response_format: { type: 'json_object' },
     messages: [
-      { role: 'system', content: SOHALA_SYSTEM_PROMPT },
+      { role: 'system', content: SOHAYA_SYSTEM_PROMPT },
       {
         role: 'user',
         content: `Suggest a realistic price range in INR for a ${category} artist performing at a ${eventType} in ${city}, India.
@@ -120,7 +153,7 @@ export async function assemblePalette(
     temperature: 0.3,
     response_format: { type: 'json_object' },
     messages: [
-      { role: 'system', content: SOHALA_SYSTEM_PROMPT },
+      { role: 'system', content: SOHAYA_SYSTEM_PROMPT },
       {
         role: 'user',
         content: `Suggest a complete entertainment package for a ${eventType} in ${city} with a budget of ₹${budgetInr.toLocaleString('en-IN')}.
@@ -154,8 +187,8 @@ export async function chatWithSohala(
   context?: string
 ): Promise<AsyncIterable<string>> {
   const systemContent = context
-    ? `${SOHALA_SYSTEM_PROMPT}\n\nContext: ${context}`
-    : SOHALA_SYSTEM_PROMPT
+    ? `${SOHAYA_SYSTEM_PROMPT}\n\nContext: ${context}`
+    : SOHAYA_SYSTEM_PROMPT
 
   const stream = await groq.chat.completions.create({
     model: GROQ_MODEL,

@@ -13,38 +13,84 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Query required' }, { status: 400 })
     }
 
-    // Parse query with Claude
+    // Parse query with AI
     const interpretation = await parseSearchQuery(query)
 
-    // Build Supabase query
     const supabase = createClient()
-    let dbQuery = supabase
-      .from('providers')
-      .select('*')
-      .eq('status', 'verified')
-      .order('avg_rating', { ascending: false })
-      .limit(12)
 
-    if (interpretation.categories?.length > 0) {
-      dbQuery = dbQuery.overlaps('categories', interpretation.categories)
+    // Mumbai metro proximity: if user says Vasai, also search Mumbai/Thane/Navi Mumbai
+    const MUMBAI_METRO = ['Mumbai', 'Vasai', 'Thane', 'Navi Mumbai', 'Pune', 'Nashik']
+    const isMetro = interpretation.city && MUMBAI_METRO.some(c => c.toLowerCase() === interpretation.city?.toLowerCase())
+
+    // STRATEGY: Try strict match first, then progressively relax filters
+    const searchArtists = async (categories: string[], city: string | null, budget: number | null, expandCity: boolean) => {
+      let q = supabase
+        .from('providers')
+        .select('*')
+        .eq('status', 'verified')
+        .order('avg_rating', { ascending: false })
+        .limit(15)
+
+      if (categories.length > 0) {
+        q = q.overlaps('categories', categories)
+      }
+
+      if (city && !expandCity) {
+        q = q.ilike('city', `%${city}%`)
+      } else if (city && expandCity && isMetro) {
+        // Search entire Mumbai metro area
+        q = q.or(MUMBAI_METRO.map(c => `city.ilike.%${c}%`).join(','))
+      }
+
+      if (budget && budget > 0) {
+        q = q.lte('base_rate_inr', budget)
+      }
+
+      const { data } = await q
+      return (data ?? []) as Provider[]
     }
 
-    if (interpretation.city) {
-      dbQuery = dbQuery.ilike('city', `%${interpretation.city}%`)
+    let finalArtists: Provider[] = []
+
+    // Step 1: Strict match (category + city + budget)
+    finalArtists = await searchArtists(
+      interpretation.categories || [],
+      interpretation.city || null,
+      interpretation.budget_hint || null,
+      false
+    )
+
+    // Step 2: If <3 results, expand to metro area
+    if (finalArtists.length < 3 && interpretation.city) {
+      finalArtists = await searchArtists(
+        interpretation.categories || [],
+        interpretation.city,
+        interpretation.budget_hint || null,
+        true
+      )
     }
 
-    if (interpretation.budget_hint && interpretation.budget_hint > 0) {
-      dbQuery = dbQuery.lte('base_rate_inr', interpretation.budget_hint)
+    // Step 3: If still <3, drop budget filter
+    if (finalArtists.length < 3 && interpretation.budget_hint) {
+      finalArtists = await searchArtists(
+        interpretation.categories || [],
+        interpretation.city || null,
+        null,
+        true
+      )
     }
 
-    const { data: artists, error } = await dbQuery
-
-    if (error) {
-      console.error('Supabase query error:', error)
+    // Step 4: If still <3, drop city filter (nationwide for this category)
+    if (finalArtists.length < 3 && interpretation.categories?.length > 0) {
+      finalArtists = await searchArtists(
+        interpretation.categories,
+        null,
+        null,
+        false
+      )
     }
 
-    // Fallback: if no results with filters, fetch top artists
-    let finalArtists: Provider[] = (artists ?? []) as Provider[]
+    // Step 5: Last resort — top rated in relevant categories or overall
     if (finalArtists.length === 0) {
       const { data: fallback } = await supabase
         .from('providers')
