@@ -48,7 +48,7 @@ export async function POST(req: NextRequest) {
         emit(controller, { type: 'parsing', message: 'Understanding your celebration...' })
 
         const groq = getGroq()
-        const VALID_CATS = ['bollywood-band','classical-music','folk-music','dj','emcee','folk-dance','dhol-player','ghazal','classical-dance','photographer','comedian','sound-light','corporate-speaker']
+        const VALID_CATS = ['bollywood-band','classical-music','folk-music','dj','emcee','folk-dance','dhol-player','ghazal','classical-dance','photographer','comedian','sound-light','corporate-speaker','influencer','instagram-influencer','youtube-creator','content-creator','celebrity','bollywood-celeb','tv-personality','magician','mehendi-artist','makeup-artist','wedding-planner','decoration','pandit','kirtan-group','qawwali','kids-entertainer','balloon-artist','face-painter','live-kitchen','bartender','street-artist','acrobat']
         const parseResponse = await groq.chat.completions.create({
           model: 'llama-3.3-70b-versatile',
           max_tokens: 512,

@@ -115,6 +115,18 @@ export async function POST(req: NextRequest) {
       }
     }
 
+    // Log search for market intelligence (fire-and-forget)
+    const { createAdminClient } = await import('@/lib/supabase/server')
+    const adminDb = createAdminClient()
+    Promise.resolve(adminDb.from('search_analytics').insert({
+      query,
+      parsed_categories: interpretation.categories || [],
+      parsed_city: interpretation.city || null,
+      parsed_budget: interpretation.budget_hint || null,
+      parsed_event_type: interpretation.event_type || null,
+      results_count: finalArtists.length,
+    })).catch(() => {})
+
     const result: SearchResult = {
       interpretation,
       artists: finalArtists,

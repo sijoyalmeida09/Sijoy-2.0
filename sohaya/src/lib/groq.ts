@@ -26,9 +26,26 @@ Never expose commission rates or internal pricing. Always respond in JSON.`
 
 // Exact DB category slugs — the LLM MUST output ONLY these values
 const VALID_CATEGORIES = [
-  'bollywood-band', 'classical-music', 'folk-music', 'dj', 'emcee',
-  'folk-dance', 'dhol-player', 'ghazal', 'classical-dance',
-  'photographer', 'comedian', 'sound-light', 'corporate-speaker',
+  // Music
+  'bollywood-band', 'classical-music', 'folk-music', 'dj', 'ghazal', 'kirtan-group', 'qawwali',
+  // Performance
+  'classical-dance', 'folk-dance', 'comedian', 'emcee', 'magician', 'acrobat', 'mime-artist', 'puppeteer',
+  // Services
+  'photographer', 'sound-light', 'corporate-speaker', 'dhol-player',
+  // Wedding
+  'mehendi-artist', 'wedding-planner', 'makeup-artist', 'decoration',
+  // Digital
+  'influencer', 'youtube-creator', 'instagram-influencer', 'content-creator',
+  // Celebrity
+  'celebrity', 'bollywood-celeb', 'tv-personality',
+  // Spiritual
+  'pandit', 'kirtan-group',
+  // Kids
+  'kids-entertainer', 'balloon-artist', 'face-painter',
+  // Food
+  'live-kitchen', 'bartender',
+  // Street
+  'street-artist',
 ]
 
 // Mumbai metro area cities that are close to each other
@@ -50,18 +67,33 @@ IMPORTANT — "categories" MUST be from this EXACT list (use multiple if relevan
 ${VALID_CATEGORIES.map(c => `"${c}"`).join(', ')}
 
 Mapping guide:
-- "band"/"live band"/"orchestra" → "bollywood-band"
-- "DJ"/"disc jockey"/"EDM" → "dj"
-- "singer"/"vocalist"/"ghazal"/"sufi" → "ghazal" or "folk-music" or "classical-music"
-- "dancer"/"bharatanatyam"/"kathak" → "classical-dance" or "folk-dance"
-- "dhol"/"nagada"/"tasha"/"drums for baraat" → "dhol-player"
-- "host"/"anchor"/"MC"/"emcee" → "emcee"
-- "comedian"/"standup"/"comedy" → "comedian"
-- "photographer"/"videographer"/"photo" → "photographer"
-- "sound"/"lights"/"AV"/"PA system" → "sound-light"
-- "speaker"/"motivational"/"corporate speaker" → "corporate-speaker"
-- "classical"/"raga"/"sitar"/"flute"/"tabla" → "classical-music"
-- "folk"/"rajasthani"/"marathi"/"lavani" → "folk-music" or "folk-dance"
+- band/live band/orchestra → "bollywood-band"
+- DJ/disc jockey/EDM → "dj"
+- singer/vocalist/ghazal/sufi → "ghazal" or "folk-music" or "classical-music"
+- dancer/bharatanatyam/kathak → "classical-dance" or "folk-dance"
+- dhol/nagada/tasha/baraat drums → "dhol-player"
+- host/anchor/MC/emcee → "emcee"
+- comedian/standup/comedy → "comedian"
+- photographer/videographer → "photographer"
+- sound/lights/AV/PA system → "sound-light"
+- speaker/motivational → "corporate-speaker"
+- classical/raga/sitar/flute/tabla → "classical-music"
+- folk/rajasthani/marathi/lavani → "folk-music" or "folk-dance"
+- influencer/social media/collab → "influencer" or "instagram-influencer" or "youtube-creator"
+- celebrity/star appearance → "celebrity" or "bollywood-celeb" or "tv-personality"
+- magician/magic show → "magician"
+- mehendi/henna → "mehendi-artist"
+- makeup/MUA → "makeup-artist"
+- planner/coordinator → "wedding-planner"
+- decoration/decor/flowers → "decoration"
+- pandit/priest/pooja → "pandit"
+- kirtan/bhajan → "kirtan-group"
+- qawwali → "qawwali"
+- kids/children/birthday clown → "kids-entertainer" or "balloon-artist" or "face-painter"
+- chef/live cooking → "live-kitchen"
+- bartender/cocktails → "bartender"
+- street performer/juggler → "street-artist"
+- acrobat/circus → "acrobat"
 
 Available cities: Mumbai, Vasai, Pune, Thane, Navi Mumbai, Bangalore, Delhi, Goa, Hyderabad, Jaipur, Lucknow, Nashik, Chennai, Kolkata, Varanasi
 
