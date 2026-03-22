@@ -81,10 +81,10 @@ export function Navbar({ user, userRole }: { user?: { id: string; email?: string
           <div className="hidden md:flex items-center gap-3">
             {user ? (
               <div className="flex items-center gap-3">
-                <Link href={userRole === 'provider' ? '/provider/dashboard' : userRole === 'admin' ? '/admin' : '/discover'}>
+                <Link href={userRole === 'provider' ? '/provider/dashboard' : userRole === 'admin' ? '/admin' : '/bookings'}>
                   <Button variant="secondary" size="sm">
                     <User className="h-4 w-4" />
-                    {userRole === 'provider' ? 'My Dashboard' : userRole === 'admin' ? 'Admin' : 'My Bookings'}
+                    {userRole === 'provider' ? 'Dashboard' : userRole === 'admin' ? 'Admin' : 'My Bookings'}
                   </Button>
                 </Link>
                 <button
