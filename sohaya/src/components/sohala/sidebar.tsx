@@ -18,13 +18,11 @@ import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 
 const NAV_ITEMS = [
-  { href: '/provider/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { href: '/provider/leads', label: 'My Leads', icon: Inbox, badge: null },
-  { href: '/provider/quotes', label: 'Quotes', icon: FileText },
-  { href: '/provider/calendar', label: 'Calendar', icon: CalendarDays },
-  { href: '/provider/earnings', label: 'Earnings', icon: DollarSign },
-  { href: '/provider/profile', label: 'Profile', icon: User },
-  { href: '/provider/go-live', label: 'Go Live', icon: Zap, highlight: true },
+  { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+  { href: '/leads', label: 'My Leads', icon: Inbox, badge: null },
+  { href: '/earnings', label: 'Earnings', icon: DollarSign },
+  { href: '/profile', label: 'Profile', icon: User },
+  { href: '/go-live', label: 'Go Live', icon: Zap, highlight: true },
 ]
 
 export function ProviderSidebar() {
