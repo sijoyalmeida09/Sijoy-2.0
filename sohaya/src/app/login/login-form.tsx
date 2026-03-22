@@ -58,7 +58,7 @@ export function LoginForm({ redirectTo = '/discover', defaultTab = 'client' }: L
     if (error) {
       setError(error.message)
     } else {
-      router.push(tab === 'artist' ? '/provider/dashboard' : redirectTo)
+      router.push(tab === 'artist' ? '/dashboard' : redirectTo)
       router.refresh()
     }
     setLoading(false)
@@ -88,13 +88,31 @@ export function LoginForm({ redirectTo = '/discover', defaultTab = 'client' }: L
     setLoading(true)
 
     const formattedPhone = phone.startsWith('+') ? phone : `+91${phone}`
-    const { error } = await supabase.auth.signInWithOtp({ phone: formattedPhone })
+    const mobile = formattedPhone.replace('+', '')
 
-    if (error) {
-      setError(error.message)
-    } else {
+    try {
+      // Use MSG91 OTP API directly
+      const widgetId = process.env.NEXT_PUBLIC_MSG91_WIDGET_ID
+      const authkey = process.env.NEXT_PUBLIC_MSG91_AUTH_TOKEN
+
+      if (!widgetId && !authkey) {
+        // Fallback: try Supabase OTP (if Twilio/MSG91 hook configured)
+        const { error } = await supabase.auth.signInWithOtp({ phone: formattedPhone })
+        if (error) throw new Error(error.message)
+      } else {
+        // MSG91 Send OTP
+        const res = await fetch(`https://control.msg91.com/api/v5/otp?template_id=${widgetId}&mobile=${mobile}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', authkey: authkey || '' },
+        })
+        const data = await res.json()
+        if (data.type === 'error') throw new Error(data.message || 'Failed to send OTP')
+      }
+
       setOtpSent(true)
       setSuccessMsg(`OTP sent to ${formattedPhone}`)
+    } catch (err: any) {
+      setError(err.message || 'Failed to send OTP')
     }
     setLoading(false)
   }
@@ -105,17 +123,46 @@ export function LoginForm({ redirectTo = '/discover', defaultTab = 'client' }: L
     setLoading(true)
 
     const formattedPhone = phone.startsWith('+') ? phone : `+91${phone}`
-    const { error } = await supabase.auth.verifyOtp({
-      phone: formattedPhone,
-      token: otp,
-      type: 'sms',
-    })
+    const mobile = formattedPhone.replace('+', '')
 
-    if (error) {
-      setError(error.message)
-    } else {
-      router.push(tab === 'artist' ? '/provider/dashboard' : redirectTo)
+    try {
+      const widgetId = process.env.NEXT_PUBLIC_MSG91_WIDGET_ID
+      const authkey = process.env.NEXT_PUBLIC_MSG91_AUTH_TOKEN
+
+      if (!widgetId && !authkey) {
+        // Fallback: Supabase OTP verify
+        const { error } = await supabase.auth.verifyOtp({ phone: formattedPhone, token: otp, type: 'sms' })
+        if (error) throw new Error(error.message)
+      } else {
+        // MSG91 Verify OTP
+        const res = await fetch(`https://control.msg91.com/api/v5/otp/verify?otp=${otp}&mobile=${mobile}`, {
+          headers: { authkey: authkey || '' },
+        })
+        const data = await res.json()
+        if (data.type === 'error') throw new Error(data.message || 'Invalid OTP')
+
+        // OTP verified — now sign in/up via Supabase with phone
+        // Create or sign in the user with a deterministic password from phone
+        const phoneEmail = `${mobile}@phone.sohaya.app`
+        const phonePass = `PHONE_${mobile}_SOHAYA`
+
+        // Try sign in first
+        const { error: signInErr } = await supabase.auth.signInWithPassword({ email: phoneEmail, password: phonePass })
+        if (signInErr) {
+          // Sign up
+          const { error: signUpErr } = await supabase.auth.signUp({
+            email: phoneEmail,
+            password: phonePass,
+            options: { data: { full_name: mobile, role: tab === 'artist' ? 'provider' : 'client', phone: formattedPhone } },
+          })
+          if (signUpErr) throw new Error(signUpErr.message)
+        }
+      }
+
+      router.push(tab === 'artist' ? '/dashboard' : redirectTo)
       router.refresh()
+    } catch (err: any) {
+      setError(err.message || 'Verification failed')
     }
     setLoading(false)
   }
