@@ -1,45 +1,47 @@
-import { NextResponse } from "next/server";
-import { createServerSupabaseClient } from "@/lib/supabase/server";
-import { sendWelcomeEmail } from "@/lib/email";
+import { NextResponse, type NextRequest } from "next/server";
+import { createServerClient } from "@supabase/ssr";
 
-export async function GET(request: Request) {
+export async function GET(request: NextRequest) {
   const url = new URL(request.url);
   const code = url.searchParams.get("code");
+  const redirectTo = url.searchParams.get("redirect") || "/dashboard";
+  const safeRedirect = redirectTo.startsWith("/") ? redirectTo : "/dashboard";
 
   if (!code) return NextResponse.redirect(new URL("/login?error=Missing+code", url.origin));
 
-  const supabase = createServerSupabaseClient();
-  const { data, error } = await supabase.auth.exchangeCodeForSession(code);
-  if (error) return NextResponse.redirect(new URL(`/login?error=${encodeURIComponent(error.message)}`, url.origin));
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+  const cookieDomain = process.env.SUPABASE_COOKIE_DOMAIN;
 
-  const user = data.user;
-  if (!user?.id || !user.email) return NextResponse.redirect(new URL("/login?error=Invalid+user", url.origin));
+  // Build response first so cookies can be set on it
+  const response = NextResponse.redirect(new URL(safeRedirect, url.origin));
 
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("id, metadata, full_name, email")
-    .eq("id", user.id)
-    .maybeSingle();
+  const supabase = createServerClient(supabaseUrl, anonKey, {
+    cookieOptions: {
+      domain: cookieDomain || undefined,
+      sameSite: "lax" as const,
+      secure: true,
+      path: "/",
+    },
+    cookies: {
+      getAll() {
+        return request.cookies.getAll();
+      },
+      setAll(cookiesToSet: Array<{ name: string; value: string; options?: Record<string, unknown> }>) {
+        cookiesToSet.forEach(({ name, value, options }) => {
+          response.cookies.set(name, value, options as Record<string, unknown>);
+        });
+      },
+    },
+  });
 
-  const metadata = (profile?.metadata as Record<string, unknown> | null) ?? {};
-  const alreadySent = metadata.welcome_sent === true;
+  const { error } = await supabase.auth.exchangeCodeForSession(code);
 
-  if (!alreadySent) {
-    await sendWelcomeEmail({ to: user.email, fullName: profile?.full_name ?? null });
-    await supabase
-      .from("profiles")
-      .update({
-        metadata: {
-          ...metadata,
-          welcome_sent: true,
-          welcome_sent_at: new Date().toISOString()
-        }
-      })
-      .eq("id", user.id);
+  if (error) {
+    return NextResponse.redirect(
+      new URL(`/login?error=${encodeURIComponent(error.message)}`, url.origin)
+    );
   }
 
-  const redirectTo = url.searchParams.get("redirect") || "/dashboard";
-  // Only allow internal redirects (prevent open redirect)
-  const safeRedirect = redirectTo.startsWith("/") ? redirectTo : "/dashboard";
-  return NextResponse.redirect(new URL(safeRedirect, url.origin));
+  return response;
 }
