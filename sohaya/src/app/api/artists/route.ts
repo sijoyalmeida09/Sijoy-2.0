@@ -62,7 +62,13 @@ export async function GET(req: NextRequest) {
 
     const { data, count, error } = await query
 
-    if (error) throw error
+    if (error) {
+      // Range out of bounds returns 416 from PostgREST — return empty array
+      if (error.code === 'PGRST103' || error.message?.includes('range')) {
+        return NextResponse.json({ artists: [], total: count ?? 0, page, limit, pages: 0 })
+      }
+      throw error
+    }
 
     return NextResponse.json({
       artists: data,

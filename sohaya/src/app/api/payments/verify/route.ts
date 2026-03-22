@@ -22,6 +22,22 @@ export async function POST(req: NextRequest) {
 
     if (!client) return NextResponse.json({ error: 'Client not found' }, { status: 404 })
 
+    // Verify booking exists and belongs to this client
+    const { data: booking } = await supabase
+      .from('bookings')
+      .select('id, status')
+      .eq('id', booking_id)
+      .eq('client_id', client.id)
+      .single()
+
+    if (!booking) {
+      return NextResponse.json({ error: 'Booking not found' }, { status: 404 })
+    }
+
+    if (booking.status === 'cancelled' || booking.status === 'completed') {
+      return NextResponse.json({ error: `Cannot submit UTR for ${booking.status} booking` }, { status: 400 })
+    }
+
     const { error } = await supabase
       .from('bookings')
       .update({
